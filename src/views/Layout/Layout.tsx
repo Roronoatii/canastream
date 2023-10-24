@@ -8,7 +8,6 @@ import {
 import Home from "../Home/Home";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Todolist from "../TodoList/Todolist";
-import Clicker from "../Clicker/Clicker";
 import Profil from "../Profil/Profil";
 import LoginPage from "../Connection/Login";
 
@@ -58,7 +57,6 @@ const Layout = () => {
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/clicker" element={<Clicker />} />
                 <Route path="/todolist" element={<Todolist />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/:id" element={<Profil />} />
