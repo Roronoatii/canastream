@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, IconButton, Stack, Typography } from '@mui/material';
+import { Box, IconButton, Stack, Typography, ImageListItem, ImageListItemBar } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import CheckIcon from '@mui/icons-material/Check';
 
@@ -17,51 +17,24 @@ export default function SeriesCard(props: SeriesCardProps) {
 
     return (
         <Box key={id} sx={{ width: '100%', position: 'relative' }}>
+            <ImageListItem>
             <img
                 src={`https://image.tmdb.org/t/p/w185${posterPath}`}
                 alt={name}
                 style={{ maxWidth: '100%', height: 'auto' }}
-            />            
-            {isInWatchList ? (
-                <IconButton
-                    sx={{
-                        position: 'absolute',
-                        top: '5%',
-                        right: '35%',
-                        backgroundColor: '#499b4a',
-                        borderRadius: '5px',
-                        color: '#000000',
-                        '&:hover': {
-                            backgroundColor: '#499b4a',
-                        },
-                    }}
-                >
-                    <CheckIcon />
+            />
+            <ImageListItemBar sx={{mx: '5%', my: '5%', background: 'transparent'}} actionIcon={
+                <IconButton sx={{ backgroundColor: '#e0e0e0',
+                borderRadius: '5px',
+                color: '#000000',
+                '&:hover': {
+                    backgroundColor: '#499b4a',
+                 }}}>
+                    {isInWatchList ? <CheckIcon /> : <AddIcon />}
                 </IconButton>
-            ) : null}
-
-            {!isInWatchList && (
-                <IconButton
-                    onClick={() => {
-                        console.log('Add to watchlist');
-                    }}
-                    sx={{
-                        position: 'absolute',
-                        top: '5%',
-                        right: '35%',
-                        backgroundColor: '#e0e0e0',
-                        borderRadius: '5px',
-                        color: '#000000',
-                        '&:hover': {
-                            backgroundColor: '#499b4a',
-                        },
-                    }}
-                >
-                    <AddIcon />
-                </IconButton>
-            )}
-
-            <Typography sx={{ fontSize: '12px', transform: 'uppercase', mt: '5px' }}>
+            }/>
+            </ImageListItem>
+            <Typography variant="button" sx={{ fontSize: '12px', mt: '5px' }}>
                 {name}
             </Typography>
             <Stack
@@ -73,11 +46,11 @@ export default function SeriesCard(props: SeriesCardProps) {
                     textAlign: 'center',
                     width: 'fit-content',
                     p: '5px',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
                 }}
             >
                 {genres.length > 0
-                    ? genres.find(g => g.id === genres[0].id)?.name || 'Unknown Genre'
+                    ? genres.find((g) => g.id === genres[0].id)?.name || 'Unknown Genre'
                     : 'Unknown Genre'}
             </Stack>
         </Box>
