@@ -13,7 +13,7 @@ import { useMobileThreshold } from '../../../hooks/useMobileThreshold'
 import { NavigationContext } from '../../../views/Layout/NavigationContext'
 import FrontEditorDrawer from '../FrontEditor/FrontEditorDrawer'
 import SmokingRoomsIcon from '@mui/icons-material/SmokingRooms'
-import { Link } from 'react-router-dom'
+import SpaIcon from '@mui/icons-material/Spa';
 
 const TopBar = () => {
   const theme = useTheme()
@@ -62,8 +62,9 @@ const TopBar = () => {
               <MenuIcon />
             </IconButton>
           )}
-            <Typography variant='h6'>
+            <Typography variant='h6' sx={{alignItems: 'center'}}>
               CanaStream
+              <SpaIcon sx={{ ml: 1 }} />
               <SmokingRoomsIcon sx={{ ml: 1 }} />
             </Typography>
           <Typography variant='h6'></Typography>
