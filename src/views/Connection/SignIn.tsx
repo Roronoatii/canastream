@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { getAuth, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
 import { Link, useNavigate } from 'react-router-dom';
 import { Stack } from '@mui/material';
+import { addDoc, collection } from 'firebase/firestore';
+import { firestore } from '../../database/firebase.config';
 
 const SignInPage = () => {
   const auth = getAuth();
@@ -17,10 +19,23 @@ const SignInPage = () => {
     try {
       await createUserWithEmailAndPassword(auth, email, password);
       console.log('Utilisateur inscrit avec e-mail :', email);
+  
+      const userRef = collection(firestore, 'users');
+      if (auth.currentUser){
+        const userDoc = await addDoc(userRef, {
+          id: auth.currentUser.uid,
+          email: auth.currentUser.email,
+          is_notified: true,
+          time_notif: '',
+          subscriptions: [],
+          fav: []
+        });
+      }
+  
       await signOut(auth);
       navigate('/login');
-    } catch (error) { 
-      if (error instanceof Error) { 
+    } catch (error) {
+      if (error instanceof Error) {
         console.error('Erreur d\'inscription avec e-mail :', error);
         setError(error.message);
       } else {

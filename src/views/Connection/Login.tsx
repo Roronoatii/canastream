@@ -7,6 +7,8 @@ import {
 } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
 import { Stack } from "@mui/material";
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { firestore } from "../../database/firebase.config";
 
 const LoginPage = () => {
   const auth = getAuth();
@@ -22,12 +24,29 @@ const LoginPage = () => {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       console.log("Utilisateur connecté avec Google :", user.uid);
+      
+      const userRef = collection(firestore, 'users');
+      const userQuery = query(userRef, where('id', '==', user.uid));
+      const querySnapshot = await getDocs(userQuery);
+  
+      if (querySnapshot.empty) {
+        await addDoc(userRef, {
+          id: user.uid,
+          email: user.email,
+          is_notified: true,
+          time_notif: '',
+          subscriptions: [],
+          fav: []
+        });
+      }
+  
       navigate("/");
     } catch (error) {
       console.error("Erreur de connexion avec Google :", error);
       setError("Une erreur s'est produite lors de la connexion.");
     }
   };
+  
 
   const handleSignInWithEmail = async () => {
     setAuthing(true);
