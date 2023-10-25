@@ -12,7 +12,7 @@ import axios from 'axios'
 import AddIcon from '@mui/icons-material/Add'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
-
+import SeriesCard from '../../components/molecules/atoms/series/SeriesCards'
 
 interface Genre {
   id: number
@@ -155,48 +155,17 @@ const Home = () => {
           {paginatedTVShows
             .slice(rowIndex * showsPerRow, (rowIndex + 1) * showsPerRow)
             .map((show: TVShow) => (
-              <Box key={show.id} sx={{ width: '100%', position: 'relative' }}>
-                <img
-                  src={`https://image.tmdb.org/t/p/w185${show.poster_path}`}
-                  alt={show.name}
-                  style={{ maxWidth: '100%', height: 'auto' }}
-                />
-                <IconButton
-                  sx={{
-                    position: 'absolute',
-                    top: '5%',
-                    right: '35%',
-                    backgroundColor: '#e0e0e0',
-                    borderRadius: '5px',
-                    color: '#000000'
-                  }}
-                >
-                  <AddIcon />
-                </IconButton>
-
-                <Typography
-                  sx={{ fontSize: '12px', transform: 'uppercase', mt: '5px' }}
-                >
-                  {show.name}
-                </Typography>
-                <Stack
-                  sx={{
-                    borderRadius: '5px',
-                    backgroundColor: '#e0e0e0',
-                    color: '#000000',
-                    fontSize: '12px',
-                    textAlign: 'center',
-                    width: 'fit-content',
-                    p: '5px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {show.genre_ids.length > 0
-                    ? genres.find(g => g.id === show.genre_ids[0])?.name ||
-                      'Unknown Genre'
-                    : 'Unknown Genre'}
-                </Stack>
-              </Box>
+              <SeriesCard
+                key={show.id} // Vous devez ajouter une clé unique pour chaque composant
+                id={show.id}
+                posterPath={show.poster_path}
+                name={show.name}
+                genres={show.genre_ids.map(genre_id => ({
+                  id: genre_id,
+                  name:
+                    genres.find(g => g.id === genre_id)?.name || 'Unknown Genre'
+                }))}
+              />
             ))}
         </Box>
       ))}
@@ -210,10 +179,16 @@ const Home = () => {
         </IconButton>
         <Pagination
           currentPage={currentPage}
-          totalPages={Math.ceil(filteredTVShows.length / (rowsPerPage * showsPerRow))}
+          totalPages={Math.ceil(
+            filteredTVShows.length / (rowsPerPage * showsPerRow)
+          )}
           onPageClick={page => setCurrentPage(page)}
         />
-        <IconButton disabled={startIndex + rowsPerPage * showsPerRow >= filteredTVShows.length}>
+        <IconButton
+          disabled={
+            startIndex + rowsPerPage * showsPerRow >= filteredTVShows.length
+          }
+        >
           <ArrowForwardIcon onClick={nextPage} />
         </IconButton>
       </Stack>
@@ -223,19 +198,22 @@ const Home = () => {
 
 export default Home
 
-
 type PaginationProps = {
-  currentPage: number;
-  totalPages: number;
-  onPageClick: (page: number) => void;
+  currentPage: number
+  totalPages: number
+  onPageClick: (page: number) => void
 }
 
-const Pagination = ({ currentPage, totalPages, onPageClick }: PaginationProps) => {
-  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+const Pagination = ({
+  currentPage,
+  totalPages,
+  onPageClick
+}: PaginationProps) => {
+  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1)
 
   return (
     <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
-      {pageNumbers.map((page) => (
+      {pageNumbers.map(page => (
         <Typography
           key={page}
           onClick={() => onPageClick(page)}
@@ -243,12 +221,12 @@ const Pagination = ({ currentPage, totalPages, onPageClick }: PaginationProps) =
             cursor: 'pointer',
             color: currentPage === page ? '#499b4a' : '#000000',
             fontSize: '16px',
-            p: '5px',
+            p: '5px'
           }}
         >
           {page}
         </Typography>
       ))}
     </Stack>
-  );
-};
+  )
+}
