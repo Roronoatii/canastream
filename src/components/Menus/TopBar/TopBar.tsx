@@ -59,7 +59,8 @@ const TopBar = () => {
               <MenuIcon />
             </IconButton>
           )}
-          <Typography variant="h6">Exo React</Typography>
+          <Typography variant="h6">CanaStream</Typography>
+          <Typography variant="h6"></Typography>
         </Stack>
         <SwitchModeButton />
         <FrontEditorDrawer />
