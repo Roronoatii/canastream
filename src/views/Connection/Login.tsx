@@ -42,7 +42,6 @@ const LoginPage = () => {
       if (querySnapshot.empty) {
         await addDoc(userRef, {
           id: user.uid,
-          email: user.email,
           is_notified: true,
           time_notif: '',
           subscriptions: [],

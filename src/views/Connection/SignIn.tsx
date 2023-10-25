@@ -27,7 +27,6 @@ const SignUpPage = () => {
       if (auth.currentUser){
         const userDoc = await addDoc(userRef, {
           id: auth.currentUser.uid,
-          email: auth.currentUser.email,
           is_notified: true,
           time_notif: '',
           subscriptions: [],
