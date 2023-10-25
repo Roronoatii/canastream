@@ -1,7 +1,8 @@
-import React from 'react';
+import { Stack } from '@mui/material'
+import React from 'react'
 
 const DrawerContent = () => {
-  return <div>Comming soon</div>;
-};
+  return <Stack>Notifications</Stack>
+}
 
-export default DrawerContent;
+export default DrawerContent

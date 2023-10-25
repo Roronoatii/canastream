@@ -7,8 +7,6 @@ import {
 } from "./NavigationContext";
 import Home from "../Home/Home";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Todolist from "../TodoList/Todolist";
-import Profile from "../Profile/Profile";
 import LoginPage from "../Connection/Login";
 import SignInPage from "../Connection/SignIn";
 import FirebaseUser from "../../models/FirebaseUser";
@@ -80,10 +78,7 @@ const Layout = () => {
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/todolist" element={<Todolist />} />
                 <Route path="/login" element={<LoginPage />} />
-                <Route path="/signin" element={<SignInPage />} />
-                <Route path="/profile" element={<Profile user={user} />} />
               </Routes>
             </BrowserRouter>
           </Box>
