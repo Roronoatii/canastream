@@ -6,6 +6,7 @@ import {
   signInWithPopup,
 } from "firebase/auth";
 import { Link, useNavigate } from "react-router-dom";
+import { Stack } from "@mui/material";
 
 const LoginPage = () => {
   const auth = getAuth();
@@ -54,38 +55,38 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="login-container">
+    <Stack>
       <h1>Page de connexion</h1>
-      {error && <div className="error-message">{error}</div>}
-      <div className="login-form">
+      {error && <Stack>{error}</Stack>}
+      <Stack>
         <label>Email :</label>
         <input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-      </div>
-      <div className="login-form">
+      </Stack>
+      <Stack>
         <label>Mot de passe :</label>
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-      </div>
+      </Stack>
       <button onClick={handleSignInWithEmail} disabled={authing}>
         Se connecter par e-mail
       </button>
-      <button className="login-google-button" onClick={handleSignInWithGoogle}>
+      <button onClick={handleSignInWithGoogle}>
         Se connecter avec Google
       </button>
-      <p className="login-signup">
+      <p>
         Vous n'avez pas de compte ?{" "}
-        <Link to="/signup" className="login-signup-link">
+        <Link to="/signin">
           Inscrivez-vous
         </Link>
       </p>
-    </div>
+    </Stack>
   );
 };
 
