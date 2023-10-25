@@ -10,6 +10,9 @@ import {
 import SearchIcon from '@mui/icons-material/Search'
 import axios from 'axios'
 import AddIcon from '@mui/icons-material/Add'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
+
 
 interface Genre {
   id: number
@@ -29,6 +32,9 @@ const Home = () => {
   const [tvShows, setTVShows] = useState<TVShow[]>([])
   const [searchQuery, setSearchQuery] = useState<string>('')
   const apiKey = '2955ed558f1e71d9871ec2a96694678a'
+  const [currentPage, setCurrentPage] = useState(1)
+  const showsPerRow = 5
+  const rowsPerPage = 4
 
   useEffect(() => {
     axios
@@ -48,7 +54,7 @@ const Home = () => {
       .catch((error: any) => {
         console.error(error)
       })
-  }, [apiKey])
+  }, [])
 
   const handleGenreClick = (genreName: string) => {
     setActiveGenre(genreName)
@@ -67,6 +73,21 @@ const Home = () => {
       .includes(searchQuery.toLowerCase())
     return genreMatch && searchMatch
   })
+
+  const startIndex = (currentPage - 1) * rowsPerPage * showsPerRow
+  const endIndex = startIndex + rowsPerPage * showsPerRow
+
+  const paginatedTVShows = filteredTVShows.slice(startIndex, endIndex)
+
+  const nextPage = () => {
+    setCurrentPage(currentPage + 1)
+  }
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1)
+    }
+  }
 
   return (
     <Stack>
@@ -121,51 +142,113 @@ const Home = () => {
         </Stack>
       </Stack>
 
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-          gap: '10px'
-        }}
+      {Array.from({ length: rowsPerPage }).map((_, rowIndex) => (
+        <Box
+          key={rowIndex}
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: `repeat(${showsPerRow}, 1fr)`,
+            gap: '10px',
+            mb: '10px'
+          }}
+        >
+          {paginatedTVShows
+            .slice(rowIndex * showsPerRow, (rowIndex + 1) * showsPerRow)
+            .map((show: TVShow) => (
+              <Box key={show.id} sx={{ width: '100%', position: 'relative' }}>
+                <img
+                  src={`https://image.tmdb.org/t/p/w185${show.poster_path}`}
+                  alt={show.name}
+                  style={{ maxWidth: '100%', height: 'auto' }}
+                />
+                <IconButton
+                  sx={{
+                    position: 'absolute',
+                    top: '5%',
+                    right: '35%',
+                    backgroundColor: '#e0e0e0',
+                    borderRadius: '5px',
+                    color: '#000000'
+                  }}
+                >
+                  <AddIcon />
+                </IconButton>
+
+                <Typography
+                  sx={{ fontSize: '12px', transform: 'uppercase', mt: '5px' }}
+                >
+                  {show.name}
+                </Typography>
+                <Stack
+                  sx={{
+                    borderRadius: '5px',
+                    backgroundColor: '#e0e0e0',
+                    color: '#000000',
+                    fontSize: '12px',
+                    textAlign: 'center',
+                    width: 'fit-content',
+                    p: '5px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {show.genre_ids.length > 0
+                    ? genres.find(g => g.id === show.genre_ids[0])?.name ||
+                      'Unknown Genre'
+                    : 'Unknown Genre'}
+                </Stack>
+              </Box>
+            ))}
+        </Box>
+      ))}
+
+      <Stack
+        direction='row'
+        sx={{ justifyContent: 'center', alignItems: 'center', mt: '10px' }}
       >
-        {filteredTVShows.map((show: TVShow, index: number) => (
-          <Box key={show.id} sx={{ width: '100%', position: 'relative' }}>
-          <img
-            src={`https://image.tmdb.org/t/p/w185${show.poster_path}`}
-            alt={show.name}
-            style={{ maxWidth: '100%', height: 'auto' }}
-          />
-          <IconButton sx={{ position: 'absolute', top: '5%', right: '20%', backgroundColor: '#e0e0e0', borderRadius: '5px', color: "#000000" }}>
-            <AddIcon />
-          </IconButton>
-        
-          <Typography
-            sx={{ fontSize: '12px', transform: 'uppercase', mt: '5px' }}
-          >
-            {show.name}
-          </Typography>
-          <Stack
-            sx={{
-              borderRadius: '5px',
-              backgroundColor: '#e0e0e0',
-              color: '#000000',
-              fontSize: '12px',
-              textAlign: 'center',
-              width: 'fit-content',
-              p: '5px',
-              cursor: 'pointer'
-            }}
-          >
-            {show.genre_ids.length > 0
-              ? genres.find(g => g.id === show.genre_ids[0])?.name ||
-                'Unknown Genre'
-              : 'Unknown Genre'}
-          </Stack>
-        </Box>        
-        ))}
-      </Box>
+        <IconButton disabled={currentPage === 1}>
+          <ArrowBackIcon onClick={prevPage} />
+        </IconButton>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(filteredTVShows.length / (rowsPerPage * showsPerRow))}
+          onPageClick={page => setCurrentPage(page)}
+        />
+        <IconButton disabled={startIndex + rowsPerPage * showsPerRow >= filteredTVShows.length}>
+          <ArrowForwardIcon onClick={nextPage} />
+        </IconButton>
+      </Stack>
     </Stack>
   )
 }
 
 export default Home
+
+
+type PaginationProps = {
+  currentPage: number;
+  totalPages: number;
+  onPageClick: (page: number) => void;
+}
+
+const Pagination = ({ currentPage, totalPages, onPageClick }: PaginationProps) => {
+  const pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+
+  return (
+    <Stack sx={{ flexDirection: 'row', alignItems: 'center' }}>
+      {pageNumbers.map((page) => (
+        <Typography
+          key={page}
+          onClick={() => onPageClick(page)}
+          sx={{
+            cursor: 'pointer',
+            color: currentPage === page ? '#499b4a' : '#000000',
+            fontSize: '16px',
+            p: '5px',
+          }}
+        >
+          {page}
+        </Typography>
+      ))}
+    </Stack>
+  );
+};
