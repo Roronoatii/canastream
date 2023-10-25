@@ -11,6 +11,7 @@ import LoginPage from "../Connection/Login";
 import SignInPage from "../Connection/SignIn";
 import FirebaseUser from "../../models/FirebaseUser";
 import { auth } from "../../database/firebase.config";
+import Profile from "../Profile/Profile";
 
 const Layout = () => {
   const [user, setUser] = useState<null | FirebaseUser>(null);
@@ -80,6 +81,7 @@ const Layout = () => {
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signin" element={<SignInPage />} />
+                <Route path="/profile" element={<Profile user={user}/>} />
               </Routes>
             </BrowserRouter>
           </Box>

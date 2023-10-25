@@ -17,6 +17,8 @@ import {
 } from '@mui/material'
 import GoogleIcon from '@mui/icons-material/Google';
 import Image from '../../components/molecules/atoms/images/background_login_signin.png';
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { firestore } from "../../database/firebase.config";
 
 const LoginPage = () => {
   const auth = getAuth()
@@ -29,15 +31,32 @@ const LoginPage = () => {
   const handleSignInWithGoogle = async () => {
     const provider = new GoogleAuthProvider()
     try {
-      const result = await signInWithPopup(auth, provider)
-      const user = result.user
-      console.log('Utilisateur connecté avec Google:', user.uid)
-      navigate('/')
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      console.log("Utilisateur connecté avec Google :", user.uid);
+      
+      const userRef = collection(firestore, 'users');
+      const userQuery = query(userRef, where('id', '==', user.uid));
+      const querySnapshot = await getDocs(userQuery);
+  
+      if (querySnapshot.empty) {
+        await addDoc(userRef, {
+          id: user.uid,
+          email: user.email,
+          is_notified: true,
+          time_notif: '',
+          subscriptions: [],
+          fav: []
+        });
+      }
+  
+      navigate("/");
     } catch (error) {
       console.error('Erreur de connexion avec Google:', error)
       setError("Une erreur s'est produite lors de la connexion.")
     }
-  }
+  };
+  
 
   const handleSignInWithEmail = async () => {
     setAuthing(true)

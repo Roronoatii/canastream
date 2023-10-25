@@ -3,6 +3,9 @@ import { getAuth, createUserWithEmailAndPassword, signOut } from 'firebase/auth'
 import { Link, useNavigate } from 'react-router-dom'
 import { Stack, Typography, Paper, Button, InputBase, Container, Grid } from '@mui/material'
 import Image from '../../components/molecules/atoms/images/background_login_signin.png';
+import { addDoc, collection } from 'firebase/firestore';
+import { firestore } from '../../database/firebase.config';
+
 
 
 const SignUpPage = () => {
@@ -17,14 +20,27 @@ const SignUpPage = () => {
     setAuthing(true)
     setError(null)
     try {
-      await createUserWithEmailAndPassword(auth, email, password)
-      console.log('Utilisateur inscrit avec e-mail :', email)
-      await signOut(auth)
-      navigate('/login')
+      await createUserWithEmailAndPassword(auth, email, password);
+      console.log('Utilisateur inscrit avec e-mail :', email);
+  
+      const userRef = collection(firestore, 'users');
+      if (auth.currentUser){
+        const userDoc = await addDoc(userRef, {
+          id: auth.currentUser.uid,
+          email: auth.currentUser.email,
+          is_notified: true,
+          time_notif: '',
+          subscriptions: [],
+          fav: []
+        });
+      }
+  
+      await signOut(auth);
+      navigate('/login');
     } catch (error) {
       if (error instanceof Error) {
-        console.error("Erreur d'inscription avec e-mail :", error)
-        setError(error.message)
+        console.error('Erreur d\'inscription avec e-mail :', error);
+        setError(error.message);
       } else {
         console.error("Erreur d'inscription avec e-mail :", error)
         setError("Une erreur s'est produite.")
