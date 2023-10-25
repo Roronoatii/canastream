@@ -13,7 +13,6 @@ import { useMobileThreshold } from '../../../hooks/useMobileThreshold'
 import { NavigationContext } from '../../../views/Layout/NavigationContext'
 import FrontEditorDrawer from '../FrontEditor/FrontEditorDrawer'
 import SmokingRoomsIcon from '@mui/icons-material/SmokingRooms'
-import { Link } from 'react-router-dom'
 
 const TopBar = () => {
   const theme = useTheme()
