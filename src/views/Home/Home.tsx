@@ -9,6 +9,7 @@ import {
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import axios from 'axios'
+import AddIcon from '@mui/icons-material/Add'
 
 interface Genre {
   id: number
@@ -79,7 +80,7 @@ const Home = () => {
             inputProps={{ 'aria-label': 'search' }}
             value={searchQuery}
             onChange={handleSearchChange}
-            sx={{ ml: 1, flex: 1, width: '95%'}}
+            sx={{ ml: 1, flex: 1, width: '95%' }}
           />
         </Paper>
         <Stack direction='row' sx={{ mb: '10px' }}>
@@ -128,35 +129,39 @@ const Home = () => {
         }}
       >
         {filteredTVShows.map((show: TVShow, index: number) => (
-          <Box key={show.id} sx={{ width: '100%' }}>
-            <img
-              src={`https://image.tmdb.org/t/p/w185${show.poster_path}`}
-              alt={show.name}
-              style={{ maxWidth: '100%', height: 'auto' }}
-            />
-            <Typography
-              sx={{ fontSize: '12px', transform: 'uppercase', mt: '5px' }}
-            >
-              {show.name}
-            </Typography>
-            <Stack
-              sx={{
-                borderRadius: '5px',
-                backgroundColor: '#e0e0e0',
-                color: '#000000',
-                fontSize: '12px',
-                textAlign: 'center',
-                width: 'fit-content',
-                p: '5px',
-                cursor: 'pointer'
-              }}
-            >
-              {show.genre_ids.length > 0
-                ? genres.find(g => g.id === show.genre_ids[0])?.name ||
-                  'Unknown Genre'
-                : 'Unknown Genre'}
-            </Stack>
-          </Box>
+          <Box key={show.id} sx={{ width: '100%', position: 'relative' }}>
+          <img
+            src={`https://image.tmdb.org/t/p/w185${show.poster_path}`}
+            alt={show.name}
+            style={{ maxWidth: '100%', height: 'auto' }}
+          />
+          <IconButton sx={{ position: 'absolute', top: '5%', right: '20%', backgroundColor: '#e0e0e0', borderRadius: '5px', color: "#000000" }}>
+            <AddIcon />
+          </IconButton>
+        
+          <Typography
+            sx={{ fontSize: '12px', transform: 'uppercase', mt: '5px' }}
+          >
+            {show.name}
+          </Typography>
+          <Stack
+            sx={{
+              borderRadius: '5px',
+              backgroundColor: '#e0e0e0',
+              color: '#000000',
+              fontSize: '12px',
+              textAlign: 'center',
+              width: 'fit-content',
+              p: '5px',
+              cursor: 'pointer'
+            }}
+          >
+            {show.genre_ids.length > 0
+              ? genres.find(g => g.id === show.genre_ids[0])?.name ||
+                'Unknown Genre'
+              : 'Unknown Genre'}
+          </Stack>
+        </Box>        
         ))}
       </Box>
     </Stack>
