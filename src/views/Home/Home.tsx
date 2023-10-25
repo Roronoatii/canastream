@@ -9,7 +9,6 @@ import {
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 import axios from 'axios'
-import AddIcon from '@mui/icons-material/Add'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 import SeriesCard from '../../components/molecules/atoms/series/SeriesCards'
@@ -156,7 +155,7 @@ const Home = () => {
             .slice(rowIndex * showsPerRow, (rowIndex + 1) * showsPerRow)
             .map((show: TVShow) => (
               <SeriesCard
-                key={show.id} // Vous devez ajouter une clé unique pour chaque composant
+                key={show.id}
                 id={show.id}
                 posterPath={show.poster_path}
                 name={show.name}

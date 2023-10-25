@@ -8,10 +8,12 @@ interface SeriesCardProps {
     posterPath: string;
     name: string;
     genres: { id: number; name: string }[];
+    isInWatchList?: boolean;
 }
 
 export default function SeriesCard(props: SeriesCardProps) {
     const { id, posterPath, name, genres } = props;
+    const isInWatchList = props.isInWatchList || false;
 
     return (
         <Box key={id} sx={{ width: '100%', position: 'relative' }}>
@@ -19,29 +21,30 @@ export default function SeriesCard(props: SeriesCardProps) {
                 src={`https://image.tmdb.org/t/p/w185${posterPath}`}
                 alt={name}
                 style={{ maxWidth: '100%', height: 'auto' }}
-            />
-            if (isInWatchlist) {
-           <IconButton
-                sx={{
-                    position: 'absolute',
-                    top: '5%',
-                    right: '35%',
-                    backgroundColor: '#499b4a',
-                    borderRadius: '5px',
-                    color: '#000000',
-                    '&:hover': {
+            />            
+            {isInWatchList ? (
+                <IconButton
+                    sx={{
+                        position: 'absolute',
+                        top: '5%',
+                        right: '35%',
                         backgroundColor: '#499b4a',
-                    },
-                }}>
+                        borderRadius: '5px',
+                        color: '#000000',
+                        '&:hover': {
+                            backgroundColor: '#499b4a',
+                        },
+                    }}
+                >
                     <CheckIcon />
                 </IconButton>
-            } else {
+            ) : null}
+
+            {!isInWatchList && (
                 <IconButton
-                    onClick={
-                        () => {
-                            console.log('Add to watchlist');
-                        }
-                    }
+                    onClick={() => {
+                        console.log('Add to watchlist');
+                    }}
                     sx={{
                         position: 'absolute',
                         top: '5%',
@@ -54,9 +57,9 @@ export default function SeriesCard(props: SeriesCardProps) {
                         },
                     }}
                 >
-                <AddIcon />
-            </IconButton>
-            }
+                    <AddIcon />
+                </IconButton>
+            )}
 
             <Typography sx={{ fontSize: '12px', transform: 'uppercase', mt: '5px' }}>
                 {name}
