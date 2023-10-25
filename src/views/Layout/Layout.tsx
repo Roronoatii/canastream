@@ -7,16 +7,9 @@ import {
 } from "./NavigationContext";
 import Home from "../Home/Home";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Todolist from "../TodoList/Todolist";
-import Profile from "../Profile/Profile";
 import LoginPage from "../Connection/Login";
-import SignInPage from "../Connection/SignIn";
-import FirebaseUser from "../../models/FirebaseUser";
-import { auth } from "../../database/firebase.config";
 
 const Layout = () => {
-  const [user, setUser] = useState<null | FirebaseUser>(null);
-
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(
     defaultNavigationContext.mobileDrawerOpen
   );
@@ -29,24 +22,6 @@ const Layout = () => {
   useEffect(() => {
     localStorage.setItem("drawerSubState", JSON.stringify(drawerSubState));
   }, [drawerSubState]);
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
-      if (firebaseUser) {
-        setUser({
-          uid: firebaseUser.uid,
-          displayName: firebaseUser.displayName,
-          email: firebaseUser.email,
-        });
-      } else {
-        setUser(null);
-      }
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, []);
 
   const handleMobileDrawerToggle = () => {
     setMobileDrawerOpen(!mobileDrawerOpen);
@@ -80,10 +55,7 @@ const Layout = () => {
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/todolist" element={<Todolist />} />
                 <Route path="/login" element={<LoginPage />} />
-                <Route path="/signin" element={<SignInPage />} />
-                <Route path="/profile" element={<Profile user={user} />} />
               </Routes>
             </BrowserRouter>
           </Box>

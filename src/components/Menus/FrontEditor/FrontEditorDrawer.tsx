@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import SettingsIcon from '@mui/icons-material/Settings';
-import { Box, Drawer, IconButton } from '@mui/material';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import { Box, Drawer, IconButton, Badge } from '@mui/material';
 import DrawerContent from './DrawerContent';
 
 type T_Anchor = 'top' | 'left' | 'bottom' | 'right';
@@ -8,14 +8,18 @@ type T_Anchor = 'top' | 'left' | 'bottom' | 'right';
 const FrontEditorDrawer = () => {
   const anchor: T_Anchor = 'right';
   const [drawerState, setDrawerState] = useState<boolean>(false);
+  const numberOfNotifications = 5;
+
   const toggleDrawer = () => {
     setDrawerState(!drawerState);
   };
 
   return (
     <div>
-      <IconButton sx={{ ml: 1 }} color="inherit" onClick={toggleDrawer}>
-        <SettingsIcon />
+      <IconButton sx={{ mx: 1 }} color="inherit" onClick={toggleDrawer}>
+        <Badge badgeContent={numberOfNotifications} color="error">
+          <NotificationsIcon />
+        </Badge>
       </IconButton>
       <Drawer
         anchor={anchor}
