@@ -16,6 +16,7 @@ import {
   Grid
 } from '@mui/material'
 import GoogleIcon from '@mui/icons-material/Google';
+import Image from '../../components/molecules/atoms/images/background_login_signin.png';
 
 const LoginPage = () => {
   const auth = getAuth()
@@ -62,8 +63,16 @@ const LoginPage = () => {
       setAuthing(false)
     }
   }
+  const styles = {
+    paperContainer: {
+        backgroundImage: `url(${Image})`,
+        backgroundSize: 'cover',
+        height: '88vh',
+    }
+};
 
   return (
+    <Paper style={styles.paperContainer}>
     <Container maxWidth='md'>
       <Grid
         container
@@ -126,6 +135,7 @@ const LoginPage = () => {
         </p>
       </Grid>
     </Container>
+    </Paper>
   )
 }
 
