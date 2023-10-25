@@ -1,6 +1,7 @@
 import React from 'react';
 import { Box, IconButton, Stack, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import CheckIcon from '@mui/icons-material/Check';
 
 interface SeriesCardProps {
     id: number;
@@ -19,18 +20,43 @@ export default function SeriesCard(props: SeriesCardProps) {
                 alt={name}
                 style={{ maxWidth: '100%', height: 'auto' }}
             />
-            <IconButton
+            if (isInWatchlist) {
+           <IconButton
                 sx={{
                     position: 'absolute',
                     top: '5%',
                     right: '35%',
-                    backgroundColor: '#e0e0e0',
+                    backgroundColor: '#499b4a',
                     borderRadius: '5px',
-                    color: '#000000'
-                }}
-            >
+                    color: '#000000',
+                    '&:hover': {
+                        backgroundColor: '#499b4a',
+                    },
+                }}>
+                    <CheckIcon />
+                </IconButton>
+            } else {
+                <IconButton
+                    onClick={
+                        () => {
+                            console.log('Add to watchlist');
+                        }
+                    }
+                    sx={{
+                        position: 'absolute',
+                        top: '5%',
+                        right: '35%',
+                        backgroundColor: '#e0e0e0',
+                        borderRadius: '5px',
+                        color: '#000000',
+                        '&:hover': {
+                            backgroundColor: '#499b4a',
+                        },
+                    }}
+                >
                 <AddIcon />
             </IconButton>
+            }
 
             <Typography sx={{ fontSize: '12px', transform: 'uppercase', mt: '5px' }}>
                 {name}
