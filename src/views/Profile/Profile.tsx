@@ -35,15 +35,12 @@ import {
 const Profile: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
-  const [newDisplayName, setNewDisplayName] = useState("");
+  const [newDisplayName, setNewDisplayName] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const seriesId = 1234;
   const nextAirEpisodes = [];
   const apiKey = "2955ed558f1e71d9871ec2a96694678a";
 
-  const [currentDisplayName, setCurrentDisplayName] = useState(
-    user?.displayName || "Anonym"
-  );
   useEffect(() => {
     axios
       .get(
@@ -81,7 +78,6 @@ const Profile: React.FC = () => {
           displayName: newDisplayName,
         });
         setNewDisplayName(newDisplayName);
-        setCurrentDisplayName(newDisplayName);
         setIsEditing(false);
       } catch (error) {
         console.error(
@@ -195,6 +191,8 @@ const Profile: React.FC = () => {
     navigate("/login");
     return null;
   }
+
+  const currentDisplayName = user.displayName || '';
 
   const styles = {
     paperContainer: {

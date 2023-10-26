@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import {
   Container,
@@ -22,8 +22,11 @@ import {
   doc,
   updateDoc,
   arrayUnion,
-  onSnapshot
+  onSnapshot,
+  addDoc,
+  getDoc
 } from 'firebase/firestore'
+import { User, onAuthStateChanged } from "firebase/auth";
 import { firestore, auth } from '../../database/firebase.config'
 
 interface SeriesDetails {
@@ -49,12 +52,27 @@ interface CastMember {
   character: string
 }
 
+interface Review {
+    id: string;
+    userId: string; 
+    userName: string | null;
+    rating: number; 
+    comment: string; 
+    seriesId: string | undefined; 
+  }
+  
+
 const SerieDetails = () => {
+  const navigate = useNavigate();
   const { seriesId } = useParams()
   const [seriesDetails, setSeriesDetails] = useState<SeriesDetails | null>(null)
   const [seasons, setSeasons] = useState<Season[]>([])
   const [cast, setCast] = useState<CastMember[]>([])
   const [isSubscribed, setIsSubscribed] = useState(false)
+  const [rating, setRating] = useState<number>(0);
+  const [comment, setComment] = useState('');
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [user, setUser] = useState<User | null>(null);
 
   const apiKey = '2955ed558f1e71d9871ec2a96694678a'
 
@@ -109,6 +127,16 @@ const SerieDetails = () => {
   }, [seriesId])
 
   useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser: User | null) => {
+      if (currentUser) {
+        setUser(currentUser);
+      } 
+    });
+
+    return () => unsubscribe();
+  }, [navigate, auth]);
+
+  useEffect(() => {
     async function checkSubscription() {
       if (auth.currentUser && seriesDetails) {
         const userRef = collection(firestore, 'users')
@@ -148,8 +176,59 @@ const SerieDetails = () => {
     return () => unsubscribe()
   }, [seriesDetails, auth.currentUser])
 
+  const submitReview = async () => {
+    if (auth.currentUser) {
+      const reviewData = {
+        userId: auth.currentUser.uid,
+        userName: auth.currentUser.displayName,
+        seriesId: seriesId,
+        rating: rating,
+        comment: comment,
+        timestamp: new Date(),
+      };
+
+      const docRef = await addDoc(collection(firestore, 'reviews'), reviewData);
+
+      setRating(0);
+      setComment('');
+
+      const newReviewId = docRef.id;
+      const newReview = { ...reviewData, id: newReviewId };
+
+      setReviews((prevReviews) => [...prevReviews, newReview]);
+
+      console.log('Avis ajouté avec ID : ', docRef.id);
+    }else {
+      navigate("/login");
+    }
+  };
+
+  useEffect(() => {
+    async function fetchReviews() {
+      const reviewsRef = collection(firestore, 'reviews');
+      const reviewsQuery = query(reviewsRef, where('seriesId', '==', seriesId));
+      const querySnapshot = await getDocs(reviewsQuery);
+    
+      const reviewsData: Review[] = [];
+      querySnapshot.forEach((doc) => {
+        const review = doc.data() as Review;
+        reviewsData.push(review);
+      });
+    
+      setReviews(reviewsData);
+    }
+    
+  
+    fetchReviews();
+  }, [seriesId]);
+  
+
   if (!seriesDetails) {
     return <div>Loading...</div>
+  }
+
+  if (user) {
+    const currentDisplayName = user.displayName || '';
   }
 
   const styles = {
@@ -304,6 +383,41 @@ const SerieDetails = () => {
         {cast.map(member => (
           <ListItem key={member.name}>
             <ListItemText primary={member.name} secondary={member.character} />
+          </ListItem>
+        ))}
+      </List>
+      <Stack>
+        <h3>Laisser un avis</h3>
+        <select value={rating} onChange={(e) => setRating(parseInt(e.target.value))}>
+          <option value="0">Sélectionner une note</option>
+          <option value="1">1 - Mauvais</option>
+          <option value="2">2 - Moyen</option>
+          <option value="3">3 - Bien</option>
+          <option value="4">4 - Très bien</option>
+          <option value="5">5 - Excellent</option>
+        </select>
+        <textarea
+          placeholder="Ajouter un commentaire..."
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+        />
+        <button onClick={submitReview}>Soumettre</button>
+      </Stack>
+      <Typography variant='h5' sx={{ marginTop: 2 }}>
+        Avis et commentaires
+      </Typography>
+      <List>
+        {reviews.map((review, index) => (
+          <ListItem key={index} sx={{ border: '1px solid #e0e0e0', borderRadius: '5px', margin: '5px' }}>
+            <Stack direction="column">
+              <Typography variant="subtitle1">
+                <strong>Note:</strong> {review.rating}
+              </Typography>
+              <Typography variant="body2">
+                <strong>{review.userName}</strong>
+              </Typography>
+              <Typography variant="body2">{review.comment}</Typography>
+            </Stack>
           </ListItem>
         ))}
       </List>
