@@ -130,7 +130,7 @@ const LoginPage = () => {
           disabled={authing}
           sx={{ mb: '10px' }}
         >
-          Sign in with Email
+          Log in with Email
         </Button>
         <Button
           variant='contained'
