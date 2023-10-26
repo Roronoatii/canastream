@@ -37,7 +37,10 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
         setNewDisplayName(newDisplayName)
         setIsEditing(false)
       } catch (error) {
-        console.error("Erreur lors de la mise à jour du nom d'utilisateur :", error)
+        console.error(
+          "Erreur lors de la mise à jour du nom d'utilisateur :",
+          error
+        )
       }
     }
   }
@@ -46,8 +49,8 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
     paperContainer: {
       backgroundImage: `url(${Image})`,
       backgroundSize: 'cover',
-      height: '88vh',
-    },
+      height: '88vh'
+    }
   }
 
   return (
@@ -58,46 +61,63 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
           direction='column'
           justifyContent='center'
           alignItems='center'
+          sx={{ height: '100%' }}
         >
           <Typography variant='h3' sx={{ textAlign: 'center', mb: '20px' }}>
             {user.displayName || 'Anonym'}'s Profile
           </Typography>
-          <Typography>
-            Username :{' '}
-            {isEditing ? (
-              <Stack>
-                <InputBase
-                  placeholder='Modify your username'
-                  inputProps={{ 'aria-label': 'Username' }}
-                  fullWidth
-                  onChange={e => setNewDisplayName(e.target.value)}
-                />
+          <Paper
+            component='form'
+            sx={{
+              borderRadius: '5px',
+              mb: '10px',
+              p: 1,
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <Typography variant='h6'>
+              Username :{' '}
+              {isEditing ? (
+                <Stack>
+                  <InputBase
+                    placeholder='Modify your username'
+                    inputProps={{ 'aria-label': 'Username' }}
+                    fullWidth
+                    onChange={e => setNewDisplayName(e.target.value)}
+                  />
+                  <Button
+                    variant='contained'
+                    color='primary'
+                    onClick={handleDisplayNameUpdate}
+                    sx={{ mb: '10px' }}
+                  >
+                    Update Username
+                  </Button>
+                </Stack>
+              ) : (
+                <Typography variant='subtitle1'>
+                  {user.displayName || 'Undefined'}
+                </Typography>
+              )}
+              {!isEditing && (
                 <Button
                   variant='contained'
                   color='primary'
-                  onClick={handleDisplayNameUpdate}
+                  onClick={() => setIsEditing(true)}
                   sx={{ mb: '10px' }}
                 >
-                  Update Username
+                  Modify Username
                 </Button>
-              </Stack>
-            ) : (
-              <span>{user.displayName || 'Undefined'} <br /></span>
-            )}
-            {!isEditing && (
-              <Button
-                variant='contained'
-                color='primary'
-                onClick={() => setIsEditing(true)}
-                sx={{ mb: '10px' }}
-              >
-                Modify Username
-              </Button>
-            )}
-          </Typography>{' '}
-          <p>
-            <strong>Email :</strong> {user.email || 'Undefined'}
-          </p>
+              )}
+            </Typography>{' '}
+            <Typography variant='h6'>
+              Email : <br />{' '}
+              <Typography variant='subtitle1'>
+                {user.email || 'Undefined'}
+              </Typography>
+            </Typography>
+          </Paper>
           <Button
             variant='contained'
             color='error'
