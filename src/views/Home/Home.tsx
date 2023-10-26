@@ -144,32 +144,29 @@ const Home = () => {
         </Stack>
       </Stack>
 
-      {Array.from({ length: rowsPerPage }).map((_, rowIndex) => (
-        <Box
-          key={rowIndex}
-          sx={{
-            display: "grid",
-            gridTemplateColumns: `repeat(${showsPerRow}, 1fr)`,
-            gap: "10px",
-            mb: "10px",
-          }}
-        >
-          {paginatedTVShows.map((show: TVShow) => (
-            <Link to={`/series/${show.id}`} key={show.id}>
-              <SeriesCard
-                key={show.id}
-                id={show.id}
-                posterPath={show.poster_path}
-                name={show.name}
-                genres={show.genre_ids.map((genre_id) => ({
-                  id: genre_id,
-                  name: genres.find((g) => g.id === genre_id)?.name || "Unknown Genre",
-                }))}
-              />
-            </Link>
-          ))}
-        </Box>
-      ))}
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: `repeat(${showsPerRow}, 1fr)`,
+          gap: "10px",
+          mb: "10px",
+        }}
+      >
+        {paginatedTVShows.map((show: TVShow) => (
+          <Link to={`/series/${show.id}`} key={show.id}>
+            <SeriesCard
+              key={show.id}
+              id={show.id}
+              posterPath={show.poster_path}
+              name={show.name}
+              genres={show.genre_ids.map((genre_id) => ({
+                id: genre_id,
+                name: genres.find((g) => g.id === genre_id)?.name || "Unknown Genre",
+              }))}
+            />
+          </Link>
+        ))}
+      </Box>
 
       <Stack
         direction="row"
@@ -198,6 +195,7 @@ const Home = () => {
 };
 
 export default Home;
+
 
 type PaginationProps = {
   currentPage: number;
