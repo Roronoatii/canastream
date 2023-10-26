@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Button,
   InputBase,
@@ -7,18 +7,18 @@ import {
   Typography,
   Paper,
   Container,
-  Grid
-} from '@mui/material'
-import { EmailAuthProvider, User, onAuthStateChanged, reauthenticateWithCredential, sendEmailVerification, signOut, updateEmail, updatePassword, updateProfile } from 'firebase/auth'
-import { auth } from '../../database/firebase.config'
-import Image from '../../components/molecules/atoms/images/background_login_signin.png'
+  Grid,
+} from '@mui/material';
+import { EmailAuthProvider, User, onAuthStateChanged, reauthenticateWithCredential, sendEmailVerification, signOut, updateEmail, updatePassword, updateProfile } from 'firebase/auth';
+import { auth } from '../../database/firebase.config';
+import Image from '../../components/molecules/atoms/images/background_login_signin.png';
 
 const Profile: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [newDisplayName, setNewDisplayName] = useState('');
   const [isEditing, setIsEditing] = useState(false);
-  const [currentDisplayName, setCurrentDisplayName] = useState(user?.displayName || 'Anonym');
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser: User | null) => {
       if (currentUser) {
@@ -32,7 +32,6 @@ const Profile: React.FC = () => {
     return () => unsubscribe();
   }, [navigate, auth]);
 
-
   const handleDisplayNameUpdate = async () => {
     if (auth.currentUser) {
       try {
@@ -40,7 +39,6 @@ const Profile: React.FC = () => {
           displayName: newDisplayName
         })
         setNewDisplayName(newDisplayName)
-        setCurrentDisplayName(newDisplayName)
         setIsEditing(false)
       } catch (error) {
         console.error(
@@ -53,28 +51,24 @@ const Profile: React.FC = () => {
 
   const handleEmailUpdate = async () => {
     const newEmail = prompt('Nouvel email :');
-  
+
     if (newEmail) {
       if (auth.currentUser) {
         try {
           const password = prompt('Mot de passe actuel :');
-  
+
           if (password !== null) {
             const credential = EmailAuthProvider.credential(auth.currentUser.email!, password);
             await reauthenticateWithCredential(auth.currentUser, credential);
-  
+
             await sendEmailVerification(auth.currentUser);
             console.log('E-mail de vérification envoyé.');
-            
-            // Old
 
             await new Promise(resolve => {
               const interval = setInterval(async () => {
                 if (auth.currentUser) {
-                  console.log("user");
                   await auth.currentUser.reload();
                   if (auth.currentUser.emailVerified) {
-                    console.log("vérifié");
                     clearInterval(interval);
                     console.log("user d'avant :", auth.currentUser);
                     console.log("new email :", newEmail)
@@ -84,18 +78,14 @@ const Profile: React.FC = () => {
               }, 30000); 
             });
 
-            // New
-
             await sendEmailVerification(auth.currentUser);
-            console.log('Nem e-mail de vérification envoyé.');
-            
+            console.log('Nouvel e-mail de vérification envoyé.');
+
             await new Promise(resolve => {
               const interval = setInterval(async () => {
                 if (auth.currentUser) {
-                  console.log("user2");
                   await auth.currentUser.reload();
                   if (auth.currentUser.emailVerified) {
-                    console.log("vérifié2");
                     clearInterval(interval);
                     await updateEmail(auth.currentUser, newEmail);
                   }
@@ -111,7 +101,6 @@ const Profile: React.FC = () => {
       }
     }
   };
-  
 
   const handlePasswordUpdate = async () => {
     const newPassword = prompt('Nouveau mot de passe :');
@@ -126,10 +115,13 @@ const Profile: React.FC = () => {
       }
     }
   };
+
   if (!user) {
     navigate('/login');
     return null;
   }
+
+  const currentDisplayName = user.displayName || '';
 
   const styles = {
     paperContainer: {
@@ -203,23 +195,23 @@ const Profile: React.FC = () => {
                 {user.email || 'Undefined'}
               </Typography>
             </Typography>
-          <Button
-            variant='contained'
-            color='primary'
-            onClick={handleEmailUpdate}
-            sx={{ mb: '10px' }}
-          >
-            Modify Email
-          </Button>
-          <br />
-          <Button
-            variant='contained'
-            color='primary'
-            onClick={handlePasswordUpdate}
-            sx={{ mb: '10px' }}
-          >
-            Modify Password
-          </Button>
+            <Button
+              variant='contained'
+              color='primary'
+              onClick={handleEmailUpdate}
+              sx={{ mb: '10px' }}
+            >
+              Modify Email
+            </Button>
+            <br />
+            <Button
+              variant='contained'
+              color='primary'
+              onClick={handlePasswordUpdate}
+              sx={{ mb: '10px' }}
+            >
+              Modify Password
+            </Button>
           </Paper>
           <Button
             variant='contained'
@@ -236,7 +228,3 @@ const Profile: React.FC = () => {
 }
 
 export default Profile;
-function setUser(currentUser: User) {
-  throw new Error('Function not implemented.')
-}
-
