@@ -81,7 +81,7 @@ const Layout = () => {
                 <Route path="/" element={<Home />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/signin" element={<SignInPage />} />
-                <Route path="/profile" element={<Profile user={user}/>} />
+                <Route path="/profile" element={<Profile />} />
               </Routes>
             </BrowserRouter>
           </Box>

@@ -1,23 +1,27 @@
-import React, { useState } from 'react';
-import FirebaseUser from '../../models/FirebaseUser';
-import { auth } from '../../database/firebase.config';
-import { signOut, updateProfile } from 'firebase/auth';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {updateProfile, reauthenticateWithCredential, EmailAuthProvider, updatePassword, updateEmail, sendEmailVerification, signOut, User, onAuthStateChanged, Auth, getAuth } from 'firebase/auth';
 import { Stack } from '@mui/material';
+import { auth } from '../../database/firebase.config';
 
-interface ProfileProps {
-  user: FirebaseUser | null;
-}
-
-const Profile: React.FC<ProfileProps> = ({ user }) => {
+const Profile: React.FC = () => {
   const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
   const [newDisplayName, setNewDisplayName] = useState('');
   const [isEditing, setIsEditing] = useState(false);
 
-  if (!user) {
-    navigate('/');
-    return null;
-  }
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+      } else {
+        setUser(null);
+        navigate("/login");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [navigate, auth]);
 
   const handleDisplayNameUpdate = async () => {
     if (auth.currentUser) {
@@ -32,7 +36,86 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
       }
     }
   };
+
+  const handleEmailUpdate = async () => {
+    const newEmail = prompt('Nouvel email :');
   
+    if (newEmail) {
+      if (auth.currentUser) {
+        try {
+          const password = prompt('Mot de passe actuel :');
+  
+          if (password !== null) {
+            const credential = EmailAuthProvider.credential(auth.currentUser.email!, password);
+            await reauthenticateWithCredential(auth.currentUser, credential);
+  
+            await sendEmailVerification(auth.currentUser);
+            console.log('E-mail de vérification envoyé.');
+            
+            // Old
+
+            await new Promise(resolve => {
+              const interval = setInterval(async () => {
+                if (auth.currentUser) {
+                  console.log("user");
+                  await auth.currentUser.reload();
+                  if (auth.currentUser.emailVerified) {
+                    console.log("vérifié");
+                    clearInterval(interval);
+                    console.log("user d'avant :", auth.currentUser);
+                    console.log("new email :", newEmail)
+                    console.log("user d'après :", auth.currentUser);
+                  }
+                }
+              }, 30000); 
+            });
+
+            // New
+
+            await sendEmailVerification(auth.currentUser);
+            console.log('Nem e-mail de vérification envoyé.');
+            
+            await new Promise(resolve => {
+              const interval = setInterval(async () => {
+                if (auth.currentUser) {
+                  console.log("user2");
+                  await auth.currentUser.reload();
+                  if (auth.currentUser.emailVerified) {
+                    console.log("vérifié2");
+                    clearInterval(interval);
+                    await updateEmail(auth.currentUser, newEmail);
+                  }
+                }
+              }, 30000); 
+            });
+          } else {
+            console.error('Mot de passe non saisi');
+          }
+        } catch (error) {
+          console.error('Erreur lors de la mise à jour de l\'e-mail :', error);
+        }
+      }
+    }
+  };
+  
+
+  const handlePasswordUpdate = async () => {
+    const newPassword = prompt('Nouveau mot de passe :');
+
+    if (newPassword) {
+      if (auth.currentUser) {
+        try {
+          await updatePassword(auth.currentUser, newPassword);
+        } catch (error) {
+          console.error('Erreur lors de la mise à jour du mot de passe :', error);
+        }
+      }
+    }
+  };
+  if (!user) {
+    navigate('/login');
+    return null;
+  }
 
   return (
     <Stack>
@@ -54,6 +137,8 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
       )}
       </p>
       <p><strong>Email :</strong> {user.email || 'Non défini'}</p>
+      <button onClick={handleEmailUpdate}>Modifier Email</button>
+      <button onClick={handlePasswordUpdate}>Modifier Mot de passe</button>
       <button onClick={() => signOut(auth)}>Déconnexion</button>
     </Stack>
   );
