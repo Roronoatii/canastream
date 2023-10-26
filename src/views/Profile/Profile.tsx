@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Button,
@@ -9,25 +9,18 @@ import {
   Container,
   Grid
 } from '@mui/material'
-import { signOut, updateProfile } from 'firebase/auth'
-import FirebaseUser from '../../models/FirebaseUser'
+import { EmailAuthProvider, User, onAuthStateChanged, reauthenticateWithCredential, sendEmailVerification, signOut, updateEmail, updatePassword, updateProfile } from 'firebase/auth'
 import { auth } from '../../database/firebase.config'
 import Image from '../../components/molecules/atoms/images/background_login_signin.png'
-import SeriesCard from '../../components/molecules/atoms/series/SeriesCards'
 
 const Profile: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [newDisplayName, setNewDisplayName] = useState('');
   const [isEditing, setIsEditing] = useState(false);
-
-const Profile: React.FC<ProfileProps> = ({ user }) => {
-  const navigate = useNavigate()
-  const [newDisplayName, setNewDisplayName] = useState('')
-  const [isEditing, setIsEditing] = useState(false)
   const [currentDisplayName, setCurrentDisplayName] = useState(user?.displayName || 'Anonym');
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser: User | null) => {
       if (currentUser) {
         setUser(currentUser);
       } else {
@@ -38,6 +31,7 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
 
     return () => unsubscribe();
   }, [navigate, auth]);
+
 
   const handleDisplayNameUpdate = async () => {
     if (auth.currentUser) {
@@ -171,7 +165,7 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
             <Typography variant='h6'>
               Username :{' '}
               {isEditing ? (
-                <Stack>
+                <Stack sx={{alignItems:'center'}}>
                   <InputBase
                     placeholder='Modify your username'
                     inputProps={{ 'aria-label': 'Username' }}
@@ -209,23 +203,24 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
                 {user.email || 'Undefined'}
               </Typography>
             </Typography>
-          </Paper>
           <Button
             variant='contained'
-            color='error'
+            color='primary'
             onClick={handleEmailUpdate}
             sx={{ mb: '10px' }}
           >
-            Modifier Email
+            Modify Email
           </Button>
+          <br />
           <Button
             variant='contained'
-            color='error'
+            color='primary'
             onClick={handlePasswordUpdate}
             sx={{ mb: '10px' }}
           >
-            Modifier Password
+            Modify Password
           </Button>
+          </Paper>
           <Button
             variant='contained'
             color='error'
@@ -240,4 +235,8 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
   )
 }
 
-export default Profile
+export default Profile;
+function setUser(currentUser: User) {
+  throw new Error('Function not implemented.')
+}
+

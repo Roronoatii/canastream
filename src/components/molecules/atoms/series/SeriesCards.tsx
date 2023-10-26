@@ -5,8 +5,7 @@ import {
   Stack,
   Typography,
   ImageListItem,
-  ImageListItemBar,
-  Tooltip
+  ImageListItemBar
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import CheckIcon from '@mui/icons-material/Check'
@@ -33,7 +32,6 @@ interface SeriesCardProps {
 export default function SeriesCard(props: SeriesCardProps) {
   const { id, posterPath, name, genres } = props
   const [isSubscribed, setIsSubscribed] = useState(false)
-  const [showTooltip, setShowTooltip] = useState(false)
 
   const handleSubscription = async (subscription: string) => {
     const userRef = collection(firestore, 'users')
@@ -93,71 +91,60 @@ export default function SeriesCard(props: SeriesCardProps) {
   }, [name])
 
   return (
-    <Box key={id} sx={{ width: '75%', position: 'relative', mx: 'auto' }}>
+    <Box key={id} sx={{ width: '75%', position: 'relative', mx: 'auto'}}>
       <Link
-        to={`/series/${id}`}
-        style={{ textDecoration: 'none', color: 'inherit' }}
-      >
-        <div
-          style={{ textDecoration: 'none' }}
-          onMouseEnter={() => setShowTooltip(true)}
-          onMouseLeave={() => setShowTooltip(false)}
+  to={`/series/${id}`}
+  style={{ textDecoration: 'none', color: 'inherit' }}
+>
+
+        <ImageListItem>
+          <img
+            src={`https://image.tmdb.org/t/p/w185${posterPath}`}
+            alt={name}
+            style={{ maxWidth: '100%', height: 'auto' }}
+          />
+          <ImageListItemBar
+            sx={{ mx: '5%', my: '5%', background: 'transparent' }}
+            actionIcon={
+              <IconButton
+                sx={{
+                  backgroundColor: isSubscribed ? '#499b4a' : '#e0e0e0',
+                  borderRadius: '5px',
+                  color: '#000000',
+                  '&:hover': {
+                    backgroundColor: '#499b4a'
+                  }
+                }}
+                onClick={e => {
+                  e.preventDefault()
+                  handleSubscription(name)
+                }}
+              >
+                {isSubscribed ? <CheckIcon /> : <AddIcon />}{' '}
+              </IconButton>
+            }
+          />
+        </ImageListItem>
+        <Typography variant='button' sx={{ fontSize: '12px', mt: '5px', textDecoration: 'none' }}>
+          {name}
+        </Typography>
+        <Stack
+          sx={{
+            borderRadius: '5px',
+            backgroundColor: '#e0e0e0',
+            color: '#000000',
+            textDecoration: 'none',
+            fontSize: '12px',
+            textAlign: 'center',
+            width: 'fit-content',
+            p: '5px',
+            cursor: 'pointer'
+          }}
         >
-          <Tooltip
-            title={`Details of ${name}`}
-            open={showTooltip}
-            enterDelay={1000}
-            leaveDelay={0}
-          >
-            <ImageListItem>
-              <img
-                src={`https://image.tmdb.org/t/p/w185${posterPath}`}
-                alt={name}
-                style={{ maxWidth: '100%', height: 'auto' }}
-              />
-              <ImageListItemBar
-                sx={{ mx: '5%', my: '5%', background: 'transparent' }}
-                actionIcon={
-                  <IconButton
-                    sx={{
-                      backgroundColor: isSubscribed ? '#499b4a' : '#e0e0e0',
-                      borderRadius: '5px',
-                      color: '#000000',
-                      '&:hover': {
-                        backgroundColor: '#499b4a'
-                      }
-                    }}
-                    onClick={e => {
-                      e.preventDefault()
-                      handleSubscription(name)
-                    }}
-                  >
-                    {isSubscribed ? <CheckIcon /> : <AddIcon />}{' '}
-                  </IconButton>
-                }
-              />
-            </ImageListItem>
-          </Tooltip>
-          <Typography variant='button' sx={{ fontSize: '12px', mt: '5px' }}>
-            {name}
-          </Typography>
-          <Stack
-            sx={{
-              borderRadius: '5px',
-              backgroundColor: '#e0e0e0',
-              color: '#000000',
-              fontSize: '12px',
-              textAlign: 'center',
-              width: 'fit-content',
-              p: '5px',
-              cursor: 'pointer'
-            }}
-          >
-            {genres.length > 0
-              ? genres.find(g => g.id === genres[0].id)?.name || 'Unknown Genre'
-              : 'Unknown Genre'}
-          </Stack>
-        </div>
+          {genres.length > 0
+            ? genres.find(g => g.id === genres[0].id)?.name || 'Unknown Genre'
+            : 'Unknown Genre'}
+        </Stack>
       </Link>
     </Box>
   )
