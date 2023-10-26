@@ -1,4 +1,3 @@
-import React from 'react'
 import { useState, useEffect } from 'react'
 import {
   Box,
@@ -6,23 +5,23 @@ import {
   Stack,
   Typography,
   ImageListItem,
-  ImageListItemBar
+  ImageListItemBar,
+  Tooltip
 } from '@mui/material'
 import AddIcon from '@mui/icons-material/Add'
 import CheckIcon from '@mui/icons-material/Check'
 import { auth, firestore } from '../../../../database/firebase.config'
 import {
-  addDoc,
   arrayUnion,
   collection,
   doc,
-  getDoc,
   getDocs,
   query,
   updateDoc,
   where,
   onSnapshot
 } from 'firebase/firestore'
+import { Link } from 'react-router-dom'
 
 interface SeriesCardProps {
   id: number
@@ -33,7 +32,8 @@ interface SeriesCardProps {
 
 export default function SeriesCard(props: SeriesCardProps) {
   const { id, posterPath, name, genres } = props
-  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false)
+  const [showTooltip, setShowTooltip] = useState(false)
 
   const handleSubscription = async (subscription: string) => {
     const userRef = collection(firestore, 'users')
@@ -76,8 +76,8 @@ export default function SeriesCard(props: SeriesCardProps) {
 
     checkSubscription()
 
-    const unsubscribe = onSnapshot(collection(firestore, 'users'), (snapshot) => {
-      snapshot.docs.forEach((doc) => {
+    const unsubscribe = onSnapshot(collection(firestore, 'users'), snapshot => {
+      snapshot.docs.forEach(doc => {
         const userData = doc.data()
         if (userData.id === auth.currentUser?.uid) {
           if (userData.subscriptions.includes(name)) {
@@ -93,51 +93,72 @@ export default function SeriesCard(props: SeriesCardProps) {
   }, [name])
 
   return (
-    <Box key={id} sx={{ width: '100%', position: 'relative' }}>
-      <ImageListItem>
-        <img
-          src={`https://image.tmdb.org/t/p/w185${posterPath}`}
-          alt={name}
-          style={{ maxWidth: '100%', height: 'auto' }}
-        />
-        <ImageListItemBar
-          sx={{ mx: '5%', my: '5%', background: 'transparent' }}
-          actionIcon={
-            <IconButton
-                sx={{
-                    backgroundColor: isSubscribed ? '#499b4a' : '#e0e0e0',
-                    borderRadius: '5px',
-                    color: '#000000',
-                    '&:hover': {
-                        backgroundColor: '#499b4a'
-                    }
-                }}
-                onClick={() => handleSubscription(name)}
-            >
-              {isSubscribed ? <CheckIcon /> : <AddIcon />}{' '}
-            </IconButton>
-          }
-        />
-      </ImageListItem>
-      <Typography variant='button' sx={{ fontSize: '12px', mt: '5px' }}>
-        {name}
-      </Typography>
-      <Stack
-        sx={{
-          borderRadius: '5px',
-          backgroundColor: '#e0e0e0',
-          color: '#000000',
-          fontSize: '12px',
-          textAlign: 'center',
-          width: 'fit-content',
-          p: '5px',
-          cursor: 'pointer'
-        }}
+    <Box key={id} sx={{ width: '75%', position: 'relative', mx: 'auto' }}>
+      <Link
+        to={`/series/${id}`}
+        style={{ textDecoration: 'none', color: 'inherit' }}
       >
-        {genres.length > 0
-          ? genres.find(g => g.id === genres[0].id)?.name || 'Unknown Genre'
-          : 'Unknown Genre'}
-      </Stack>
+        <div
+          style={{ textDecoration: 'none' }}
+          onMouseEnter={() => setShowTooltip(true)}
+          onMouseLeave={() => setShowTooltip(false)}
+        >
+          <Tooltip
+            title={`Details of ${name}`}
+            open={showTooltip}
+            enterDelay={1000}
+            leaveDelay={0}
+          >
+            <ImageListItem>
+              <img
+                src={`https://image.tmdb.org/t/p/w185${posterPath}`}
+                alt={name}
+                style={{ maxWidth: '100%', height: 'auto' }}
+              />
+              <ImageListItemBar
+                sx={{ mx: '5%', my: '5%', background: 'transparent' }}
+                actionIcon={
+                  <IconButton
+                    sx={{
+                      backgroundColor: isSubscribed ? '#499b4a' : '#e0e0e0',
+                      borderRadius: '5px',
+                      color: '#000000',
+                      '&:hover': {
+                        backgroundColor: '#499b4a'
+                      }
+                    }}
+                    onClick={e => {
+                      e.preventDefault()
+                      handleSubscription(name)
+                    }}
+                  >
+                    {isSubscribed ? <CheckIcon /> : <AddIcon />}{' '}
+                  </IconButton>
+                }
+              />
+            </ImageListItem>
+          </Tooltip>
+          <Typography variant='button' sx={{ fontSize: '12px', mt: '5px' }}>
+            {name}
+          </Typography>
+          <Stack
+            sx={{
+              borderRadius: '5px',
+              backgroundColor: '#e0e0e0',
+              color: '#000000',
+              fontSize: '12px',
+              textAlign: 'center',
+              width: 'fit-content',
+              p: '5px',
+              cursor: 'pointer'
+            }}
+          >
+            {genres.length > 0
+              ? genres.find(g => g.id === genres[0].id)?.name || 'Unknown Genre'
+              : 'Unknown Genre'}
+          </Stack>
+        </div>
+      </Link>
     </Box>
   )
 }

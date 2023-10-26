@@ -157,7 +157,7 @@ const Home = () => {
             .slice(rowIndex * showsPerRow, (rowIndex + 1) * showsPerRow)
             .map((show: TVShow) => (
               <SeriesCard
-                key={show.id} // Vous devez ajouter une clé unique pour chaque composant
+                key={show.id}
                 id={show.id}
                 posterPath={show.poster_path}
                 name={show.name}

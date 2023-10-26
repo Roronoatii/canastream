@@ -13,6 +13,7 @@ import { signOut, updateProfile } from 'firebase/auth'
 import FirebaseUser from '../../models/FirebaseUser'
 import { auth } from '../../database/firebase.config'
 import Image from '../../components/molecules/atoms/images/background_login_signin.png'
+import SeriesCard from '../../components/molecules/atoms/series/SeriesCards'
 
 interface ProfileProps {
   user: FirebaseUser | null
