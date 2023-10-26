@@ -1,8 +1,7 @@
-<<<<<<< HEAD
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {updateProfile, reauthenticateWithCredential, EmailAuthProvider, updatePassword, updateEmail, sendEmailVerification, signOut, User, onAuthStateChanged, Auth, getAuth } from 'firebase/auth';
-import { Stack } from '@mui/material';
+import { Button, Container, Grid, InputBase, Paper, Stack, Typography } from '@mui/material';
 import { auth } from '../../database/firebase.config';
 
 const Profile: React.FC = () => {
@@ -36,7 +35,6 @@ const Profile: React.FC = () => {
         console.error("Erreur lors de la mise à jour du nom d'utilisateur :", error)
       }
     }
-<<<<<<< HEAD
   };
 
   const handleEmailUpdate = async () => {
@@ -119,35 +117,6 @@ const Profile: React.FC = () => {
     return null;
   }
 
-  return (
-    <Stack>
-      <h2>Profil de {user.displayName || 'Anonyme'}</h2>
-      <p><strong>Nom d'utilisateur :</strong> {isEditing ? (
-        <Stack>
-          <input
-            type="text"
-            value={newDisplayName}
-            onChange={(e) => setNewDisplayName(e.target.value)}
-          />
-          <button onClick={handleDisplayNameUpdate}>Mettre à jour</button>
-        </Stack>
-      ) : (
-        <span>{user.displayName || 'Non défini'}</span>
-      )}
-      {!isEditing && (
-        <button onClick={() => setIsEditing(true)}>Modifier</button>
-      )}
-      </p>
-      <p><strong>Email :</strong> {user.email || 'Non défini'}</p>
-      <button onClick={handleEmailUpdate}>Modifier Email</button>
-      <button onClick={handlePasswordUpdate}>Modifier Mot de passe</button>
-      <button onClick={() => signOut(auth)}>Déconnexion</button>
-    </Stack>
-  );
-};
-=======
-  }
-
   const styles = {
     paperContainer: {
       backgroundImage: `url(${Image})`,
@@ -207,6 +176,22 @@ const Profile: React.FC = () => {
           <Button
             variant='contained'
             color='error'
+            onClick={handleEmailUpdate}
+            sx={{ mb: '10px' }}
+          >
+            Modifier Email
+          </Button>
+          <Button
+            variant='contained'
+            color='error'
+            onClick={handlePasswordUpdate}
+            sx={{ mb: '10px' }}
+          >
+            Modifier Password
+          </Button>
+          <Button
+            variant='contained'
+            color='error'
             onClick={() => signOut(auth)}
             sx={{ mb: '10px' }}
           >
@@ -217,6 +202,5 @@ const Profile: React.FC = () => {
     </Paper>
   )
 }
->>>>>>> origin/ethan
 
 export default Profile
