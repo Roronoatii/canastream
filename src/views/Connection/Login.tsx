@@ -21,15 +21,15 @@ import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { firestore } from "../../database/firebase.config";
 
 const LoginPage = () => {
-  const auth = getAuth()
-  const navigate = useNavigate()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [authing, setAuthing] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const auth = getAuth();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [authing, setAuthing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSignInWithGoogle = async () => {
-    const provider = new GoogleAuthProvider()
+    const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;

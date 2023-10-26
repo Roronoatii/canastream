@@ -15,20 +15,29 @@ import { auth } from '../../database/firebase.config'
 import Image from '../../components/molecules/atoms/images/background_login_signin.png'
 import SeriesCard from '../../components/molecules/atoms/series/SeriesCards'
 
-interface ProfileProps {
-  user: FirebaseUser | null
-}
+const Profile: React.FC = () => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
+  const [newDisplayName, setNewDisplayName] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
 
 const Profile: React.FC<ProfileProps> = ({ user }) => {
   const navigate = useNavigate()
   const [newDisplayName, setNewDisplayName] = useState('')
   const [isEditing, setIsEditing] = useState(false)
   const [currentDisplayName, setCurrentDisplayName] = useState(user?.displayName || 'Anonym');
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+      } else {
+        setUser(null);
+        navigate("/login");
+      }
+    });
 
-  if (!user) {
-    navigate('/')
-    return null
-  }
+    return () => unsubscribe();
+  }, [navigate, auth]);
 
   const handleDisplayNameUpdate = async () => {
     if (auth.currentUser) {
@@ -46,6 +55,86 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
         )
       }
     }
+  };
+
+  const handleEmailUpdate = async () => {
+    const newEmail = prompt('Nouvel email :');
+  
+    if (newEmail) {
+      if (auth.currentUser) {
+        try {
+          const password = prompt('Mot de passe actuel :');
+  
+          if (password !== null) {
+            const credential = EmailAuthProvider.credential(auth.currentUser.email!, password);
+            await reauthenticateWithCredential(auth.currentUser, credential);
+  
+            await sendEmailVerification(auth.currentUser);
+            console.log('E-mail de vérification envoyé.');
+            
+            // Old
+
+            await new Promise(resolve => {
+              const interval = setInterval(async () => {
+                if (auth.currentUser) {
+                  console.log("user");
+                  await auth.currentUser.reload();
+                  if (auth.currentUser.emailVerified) {
+                    console.log("vérifié");
+                    clearInterval(interval);
+                    console.log("user d'avant :", auth.currentUser);
+                    console.log("new email :", newEmail)
+                    console.log("user d'après :", auth.currentUser);
+                  }
+                }
+              }, 30000); 
+            });
+
+            // New
+
+            await sendEmailVerification(auth.currentUser);
+            console.log('Nem e-mail de vérification envoyé.');
+            
+            await new Promise(resolve => {
+              const interval = setInterval(async () => {
+                if (auth.currentUser) {
+                  console.log("user2");
+                  await auth.currentUser.reload();
+                  if (auth.currentUser.emailVerified) {
+                    console.log("vérifié2");
+                    clearInterval(interval);
+                    await updateEmail(auth.currentUser, newEmail);
+                  }
+                }
+              }, 30000); 
+            });
+          } else {
+            console.error('Mot de passe non saisi');
+          }
+        } catch (error) {
+          console.error('Erreur lors de la mise à jour de l\'e-mail :', error);
+        }
+      }
+    }
+  };
+  
+
+  const handlePasswordUpdate = async () => {
+    const newPassword = prompt('Nouveau mot de passe :');
+
+    if (newPassword) {
+      if (auth.currentUser) {
+        try {
+          await updatePassword(auth.currentUser, newPassword);
+        } catch (error) {
+          console.error('Erreur lors de la mise à jour du mot de passe :', error);
+        }
+      }
+    }
+  };
+  if (!user) {
+    navigate('/login');
+    return null;
   }
 
   const styles = {
@@ -121,6 +210,22 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
               </Typography>
             </Typography>
           </Paper>
+          <Button
+            variant='contained'
+            color='error'
+            onClick={handleEmailUpdate}
+            sx={{ mb: '10px' }}
+          >
+            Modifier Email
+          </Button>
+          <Button
+            variant='contained'
+            color='error'
+            onClick={handlePasswordUpdate}
+            sx={{ mb: '10px' }}
+          >
+            Modifier Password
+          </Button>
           <Button
             variant='contained'
             color='error'
