@@ -20,7 +20,8 @@ import {
   getDocs,
   query,
   updateDoc,
-  where
+  where,
+  onSnapshot
 } from 'firebase/firestore'
 
 interface SeriesCardProps {
@@ -74,6 +75,21 @@ export default function SeriesCard(props: SeriesCardProps) {
     }
 
     checkSubscription()
+
+    const unsubscribe = onSnapshot(collection(firestore, 'users'), (snapshot) => {
+      snapshot.docs.forEach((doc) => {
+        const userData = doc.data()
+        if (userData.id === auth.currentUser?.uid) {
+          if (userData.subscriptions.includes(name)) {
+            setIsSubscribed(true)
+          } else {
+            setIsSubscribed(false)
+          }
+        }
+      })
+    })
+
+    return () => unsubscribe()
   }, [name])
 
   return (
