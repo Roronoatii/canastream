@@ -22,6 +22,7 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
   const navigate = useNavigate()
   const [newDisplayName, setNewDisplayName] = useState('')
   const [isEditing, setIsEditing] = useState(false)
+  const [currentDisplayName, setCurrentDisplayName] = useState(user?.displayName || 'Anonym');
 
   if (!user) {
     navigate('/')
@@ -35,6 +36,7 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
           displayName: newDisplayName
         })
         setNewDisplayName(newDisplayName)
+        setCurrentDisplayName(newDisplayName)
         setIsEditing(false)
       } catch (error) {
         console.error(
@@ -64,7 +66,7 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
           sx={{ height: '100%' }}
         >
           <Typography variant='h3' sx={{ textAlign: 'center', mb: '20px' }}>
-            {user.displayName || 'Anonym'}'s Profile
+            {currentDisplayName || 'Anonym'}'s Profile
           </Typography>
           <Paper
             component='form'
@@ -97,7 +99,7 @@ const Profile: React.FC<ProfileProps> = ({ user }) => {
                 </Stack>
               ) : (
                 <Typography variant='subtitle1'>
-                  {user.displayName || 'Undefined'}
+                  {currentDisplayName || 'Undefined'}
                 </Typography>
               )}
               {!isEditing && (
