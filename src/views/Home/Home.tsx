@@ -7,6 +7,7 @@ import {
   Box,
   Typography,
 } from "@mui/material";
+import { Link } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import axios from "axios";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -153,22 +154,19 @@ const Home = () => {
             mb: "10px",
           }}
         >
-          {paginatedTVShows
-            .slice(rowIndex * showsPerRow, (rowIndex + 1) * showsPerRow)
-            .map((show: TVShow) => (
+          {paginatedTVShows.map((show: TVShow) => (
+            <Link to={`/series/${show.id}`} key={show.id}>
               <SeriesCard
-                key={show.id} // Vous devez ajouter une clé unique pour chaque composant
                 id={show.id}
                 posterPath={show.poster_path}
                 name={show.name}
                 genres={show.genre_ids.map((genre_id) => ({
                   id: genre_id,
-                  name:
-                    genres.find((g) => g.id === genre_id)?.name ||
-                    "Unknown Genre",
+                  name: genres.find((g) => g.id === genre_id)?.name || "Unknown Genre",
                 }))}
               />
-            ))}
+            </Link>
+          ))}
         </Box>
       ))}
 
