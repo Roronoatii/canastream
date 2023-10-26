@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
@@ -25,6 +26,12 @@ import {
   onSnapshot
 } from 'firebase/firestore'
 import { firestore, auth } from '../../database/firebase.config'
+=======
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import { auth } from "../../database/firebase.config";
+>>>>>>> Stashed changes
 
 interface SeriesDetails {
   name: string
@@ -50,6 +57,7 @@ interface CastMember {
 }
 
 const SerieDetails = () => {
+<<<<<<< Updated upstream
   const { seriesId } = useParams()
   const [seriesDetails, setSeriesDetails] = useState<SeriesDetails | null>(null)
   const [seasons, setSeasons] = useState<Season[]>([])
@@ -75,6 +83,16 @@ const SerieDetails = () => {
     }
   }
 
+=======
+  const { seriesId } = useParams();
+  const [seriesDetails, setSeriesDetails] = useState<SeriesDetails | null>(
+    null
+  );
+  const [seasons, setSeasons] = useState<Season[]>([]);
+  const [cast, setCast] = useState<CastMember[]>([]);
+  const apiKey = "2955ed558f1e71d9871ec2a96694678a";
+  const userSubcriptions = auth.currentUser;
+>>>>>>> Stashed changes
   useEffect(() => {
     axios
       .get(`https://api.themoviedb.org/3/tv/${seriesId}?api_key=${apiKey}`)
@@ -89,19 +107,34 @@ const SerieDetails = () => {
       .get(
         `https://api.themoviedb.org/3/tv/${seriesId}?api_key=${apiKey}&append_to_response=seasons`
       )
+<<<<<<< Updated upstream
       .then(response => {
         setSeasons(response.data.seasons)
       })
       .catch(error => {
         console.error(error)
       })
+=======
+      .then((response) => {
+        setSeriesDetails(response.data);
+        setSeasons(response.data.seasons);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+>>>>>>> Stashed changes
 
     axios
       .get(
         `https://api.themoviedb.org/3/tv/${seriesId}/credits?api_key=${apiKey}`
       )
+<<<<<<< Updated upstream
       .then(response => {
         setCast(response.data.cast)
+=======
+      .then((response) => {
+        setCast(response.data.cast);
+>>>>>>> Stashed changes
       })
       .catch(error => {
         console.error(error)
