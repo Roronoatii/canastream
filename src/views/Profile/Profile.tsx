@@ -274,7 +274,7 @@ console.log("Nem e-mail de vérification envoyé.");
     paperContainer: {
       backgroundImage: `url(${Image})`,
       backgroundSize: "cover",
-      height: "88vh",
+      height: "100%",
     },
   };
 
@@ -314,6 +314,7 @@ console.log("Nem e-mail de vérification envoyé.");
                     inputProps={{ "aria-label": "Username" }}
                     fullWidth
                     onChange={(e) => setNewDisplayName(e.target.value)}
+                    sx={{ mb: "10px", borderRadius: "5px", borderBottom: 1 }}
                   />
                   <Button
                     variant="contained"

@@ -79,6 +79,7 @@ const SignUpPage: React.FC = () => {
               password={password}
               onEmailChange={(e) => setEmail(e.target.value)}
               onPasswordChange={(e) => setPassword(e.target.value)}
+              
             />
           </Paper>
           <AuthButton text="Create an account" onClick={handleSignUp} disabled={authing} />

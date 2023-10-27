@@ -18,6 +18,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ email, password, onEmailChange, onP
         fullWidth
         value={email}
         onChange={onEmailChange}
+        sx={{ mb: '10px', borderRadius: '5px', borderBottom: 1 }}
       />
       <Typography variant='h6' sx={{ display: 'flex', justifyContent: 'center' }}>Password</Typography>
       <InputBase
@@ -27,6 +28,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ email, password, onEmailChange, onP
         type='password'
         value={password}
         onChange={onPasswordChange}
+        sx={{ mb: '10px', borderRadius: '5px', borderBottom: 1 }}
       />
     </Stack>
   );

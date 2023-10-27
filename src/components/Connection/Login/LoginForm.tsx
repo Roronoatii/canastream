@@ -59,6 +59,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, authing, error, setEmail
           fullWidth
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          sx={{borderRadius: '5px', borderBottom: 1 }}
         />
         <Typography variant="h6" sx={{ display: 'flex', justifyContent: 'center' }}>Password</Typography>
         <InputBase
@@ -68,6 +69,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, authing, error, setEmail
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          sx={{borderRadius: '5px', borderBottom: 1 }}
         />
       </Stack>
       <Button
