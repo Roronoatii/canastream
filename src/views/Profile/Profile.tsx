@@ -461,7 +461,7 @@ const Profile: React.FC = () => {
               <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <DemoContainer components={['DateCalendar', 'DateCalendar']}>
                   <DemoItem label='Upcoming Espiodes :'>
-                    <DateCalendar defaultValue={dayjs('2022-04-17')} readOnly />
+                    <DateCalendar defaultValue={dayjs()} readOnly />
                   </DemoItem>
                 </DemoContainer>
               </LocalizationProvider>
