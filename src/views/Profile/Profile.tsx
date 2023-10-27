@@ -319,7 +319,7 @@ console.log("Nem e-mail de vérification envoyé.");
                     variant="contained"
                     color="primary"
                     onClick={handleDisplayNameUpdate}
-                    sx={{ mb: "10px" }}
+                    sx={{ mb: "10px",  bgcolor: "#499b4a", '&:hover': { bgcolor: '#397A3E' }  }}
                   >
                     Update Username
                   </Button>

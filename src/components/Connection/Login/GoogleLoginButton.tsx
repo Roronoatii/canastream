@@ -12,6 +12,8 @@ const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({ onLoginWithGoogle
       variant="contained"
       onClick={onLoginWithGoogle}
       sx={{
+        my: '5%', 
+        mx: 10.5,
         background: '#fff',
         color: 'rgba(0, 0, 0, 0.54)',
         '&:hover': {
