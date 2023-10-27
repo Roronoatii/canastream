@@ -155,7 +155,6 @@ const Profile: React.FC = () => {
                   seriesName,
                   nextEpisode,
                 });
-                console.log(nextAirEpisodes);
               })
               .catch((error) => {
                 console.error(error);

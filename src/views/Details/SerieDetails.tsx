@@ -58,7 +58,6 @@ const SerieDetails = () => {
     if (auth.currentUser) {
       const userQuery = query(userRef, where("id", "==", auth.currentUser.uid));
       const querySnapshot = await getDocs(userQuery);
-      console.log(querySnapshot);
       if (!querySnapshot.empty) {
         const docSnapshot = querySnapshot.docs[0];
         const userDocRef = doc(firestore, "users", docSnapshot.id);
