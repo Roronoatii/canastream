@@ -8,6 +8,8 @@ import {
   Paper,
   Container,
   Grid,
+  Input,
+  Checkbox,
 } from "@mui/material";
 import {
   EmailAuthProvider,
@@ -29,6 +31,7 @@ import {
   getDoc,
   getDocs,
   query,
+  updateDoc,
   where,
 } from "firebase/firestore";
 
@@ -37,6 +40,7 @@ const Profile: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
   const [newDisplayName, setNewDisplayName] = useState('');
   const [isEditing, setIsEditing] = useState(false);
+  const [isNotified, setIsNotified] = useState(false);
   const seriesId = 1234;
   const nextAirEpisodes = [];
   const apiKey = "2955ed558f1e71d9871ec2a96694678a";
@@ -59,15 +63,36 @@ const Profile: React.FC = () => {
       .catch((error) => {
         console.error(error);
       });
+
+    const fetchUserData = async () => {
+      if (auth.currentUser) {
+        const userRef = collection(firestore, "users");
+        const userQuery = query(userRef, where("id", "==", auth.currentUser.uid));
+        const querySnapshot = await getDocs(userQuery);
+
+        if (!querySnapshot.empty) {
+          const docSnapshot = querySnapshot.docs[0];
+          const userDocRef = doc(firestore, "users", docSnapshot.id);
+
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists()) {
+            const isNotifiedValue = userDoc.data().is_notified;
+            setIsNotified(isNotifiedValue);
+          }
+        }
+      }
+    };
+
     const unsubscribe = onAuthStateChanged(auth, (currentUser: User | null) => {
       if (currentUser) {
         setUser(currentUser);
+        fetchUserData();
       } else {
         setUser(null);
         navigate("/login");
       }
     });
-
+    
     return () => unsubscribe();
   }, [navigate, auth]);
 
@@ -87,6 +112,7 @@ const Profile: React.FC = () => {
       }
     }
   };
+
   const getListIdSubs = async () => {
     const userRef = collection(firestore, "users");
 
@@ -107,6 +133,7 @@ const Profile: React.FC = () => {
       }
     }
   };
+
   const handleEmailUpdate = async () => {
     const newEmail = prompt("Nouvel email :");
 
@@ -187,6 +214,26 @@ const Profile: React.FC = () => {
       }
     }
   };
+
+  const handleNotificationToggle = async () => {
+    setIsNotified(!isNotified);
+
+    if (auth.currentUser) {
+      const userRef = collection(firestore, "users");
+      const userQuery = query(userRef, where("id", "==", auth.currentUser.uid));
+      const querySnapshot = await getDocs(userQuery);
+
+      if (!querySnapshot.empty) {
+        const docSnapshot = querySnapshot.docs[0];
+        const userDocRef = doc(firestore, "users", docSnapshot.id);
+
+        await updateDoc(userDocRef, {
+          is_notified: !isNotified, 
+        });
+      }
+    }
+  };
+
   if (!user) {
     navigate("/login");
     return null;
@@ -220,13 +267,15 @@ const Profile: React.FC = () => {
             sx={{
               borderRadius: "5px",
               mb: "10px",
-              p: 1,
+              p: 10, 
+              display: "flex",
+              flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
             }}
           >
-            <Typography variant="h6">
-              Username :{" "}
+            <Typography variant="h6" sx={{ mb: 2 }}>
+            <strong>Username :</strong>
               {isEditing ? (
                 <Stack sx={{ alignItems: "center" }}>
                   <InputBase
@@ -254,14 +303,14 @@ const Profile: React.FC = () => {
                   variant="contained"
                   color="primary"
                   onClick={() => setIsEditing(true)}
-                  sx={{ mb: "10px" }}
+                  sx={{ mb: "10px", bgcolor: "#499b4a", '&:hover': { bgcolor: '#397A3E' } }}
                 >
                   Modify Username
                 </Button>
               )}
-            </Typography>{" "}
+            </Typography>
             <Typography variant="h6">
-              Email : <br />{" "}
+            <strong>Email :</strong> <br />
               <Typography variant="subtitle1">
                 {user.email || "Undefined"}
               </Typography>
@@ -270,16 +319,35 @@ const Profile: React.FC = () => {
               variant="contained"
               color="primary"
               onClick={handleEmailUpdate}
-              sx={{ mb: "10px" }}
+              sx={{ mb: 2, bgcolor: "#499b4a", '&:hover': { bgcolor: '#397A3E' } }}
             >
               Modify Email
             </Button>
-            <br />
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              <strong>Notifications : </strong>
+              <Checkbox
+                checked={isNotified}
+                onChange={handleNotificationToggle}
+                sx={{
+                  appearance: "none", 
+                  width: "20px",
+                  height: "20px",
+                  borderRadius: "4px",
+                  outline: "none",
+                  "&.Mui-checked": {
+                    color: "#499b4a", 
+                  },
+                  ":checked": {
+                    backgroundColor: "#499b4a", 
+                  },
+                }}
+              />
+            </Typography>
             <Button
               variant="contained"
               color="primary"
               onClick={handlePasswordUpdate}
-              sx={{ mb: "10px" }}
+              sx={{ mb: "10px", bgcolor: "#499b4a", '&:hover': { bgcolor: '#397A3E' } }}
             >
               Modify Password
             </Button>
@@ -299,6 +367,3 @@ const Profile: React.FC = () => {
 };
 
 export default Profile;
-function setUser(currentUser: User) {
-  throw new Error("Function not implemented.");
-}
