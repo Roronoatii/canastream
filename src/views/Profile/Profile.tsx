@@ -345,21 +345,8 @@ console.log("Nem e-mail de vérification envoyé.");
                 {user.email || "Undefined"}
               </Typography>
             </Typography>
-            <Button
-
-              variant='contained'
-              color='primary'
-              onClick={handleEmailUpdate}
-              sx={{ mb: '10px' }}
-            >
-              Modify Email
-            </Button>
             <br />
             <Button
-              variant='contained'
-              color='primary'
-              onClick={handlePasswordUpdate}
-              sx={{ mb: '10px' }}
               variant="contained"
               color="primary"
               onClick={handleEmailUpdate}
