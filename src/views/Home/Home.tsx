@@ -153,7 +153,7 @@ const Home = () => {
         }}
       >
         {paginatedTVShows.map((show: TVShow) => (
-          <Link to={`/series/${show.id}`} key={show.id}>
+          <Link to={`/series/${show.id}`} key={show.id} style={{ textDecoration: 'none', color: '#499b4a', fontWeight: 'bold'}}>
             <SeriesCard
               key={show.id}
               id={show.id}
