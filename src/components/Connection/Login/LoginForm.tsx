@@ -38,7 +38,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onLogin, authing, error, setEmail
         color="primary"
         onClick={onLogin}
         disabled={authing}
-        sx={{ mb: '10px', ml: 10.5, mr: 10.5}}
+        sx={{ mb: '10px', mx: 10.5, bgcolor: "#499b4a", '&:hover': { bgcolor: '#397A3E' } }}
       >
         Log in with Email
       </Button>

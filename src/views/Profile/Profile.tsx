@@ -9,7 +9,6 @@ import {
   Paper,
   Container,
   Grid,
-  Input,
   Checkbox,
   FormControl,
   InputLabel,
@@ -278,6 +277,8 @@ console.log("Nem e-mail de vérification envoyé.");
       height: "88vh",
     },
   };
+
+
 
   return (
     <Paper style={styles.paperContainer}>

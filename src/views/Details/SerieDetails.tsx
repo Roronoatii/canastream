@@ -24,7 +24,6 @@ import {
 } from 'firebase/firestore'
 import { User, onAuthStateChanged } from 'firebase/auth'
 import { firestore, auth } from '../../database/firebase.config'
-import BackgroundImage from '../../components/Details/BackgroundImage'
 import SerieInfo from '../../components/Details/SerieInfo'
 import SubscriptionButton from '../../components/Details/SubscriptionButton'
 import SeasonList from '../../components/Details/SeasonList'
@@ -35,6 +34,8 @@ import { SeriesDetails } from '../../components/Details/SerieInfo'
 import { Season } from '../../components/Details/SeasonList'
 import { Review } from '../../components/Details/ReviewList'
 import { CastMember } from '../../components/Details/CastList'
+import SpaIcon from '@mui/icons-material/Spa'
+
 
 const SerieDetails = () => {
   const navigate = useNavigate()
@@ -300,6 +301,8 @@ const SerieDetails = () => {
             }
             size="large"
             sx={{ mb: 2 }}
+            icon={<SpaIcon style={{ color: '#499b4a' }} />}
+            emptyIcon={<SpaIcon />}
           />
           <TextareaAutosize
             placeholder='Add a Comment...'

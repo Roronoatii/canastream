@@ -9,7 +9,7 @@ interface AuthButtonProps {
 
 const AuthButton: React.FC<AuthButtonProps> = ({ text, onClick, disabled }) => {
   return (
-    <Button variant='contained' color='primary' onClick={onClick} disabled={disabled} sx={{ mb: '10px' }}>
+    <Button variant='contained' color='primary' onClick={onClick} disabled={disabled} sx={{ mb: '10px', bgcolor: "#499b4a", '&:hover': { bgcolor: '#397A3E' } }}>
       {text}
     </Button>
   );

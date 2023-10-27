@@ -91,12 +91,11 @@ export default function SeriesCard(props: SeriesCardProps) {
   }, [name])
 
   return (
-    <Box key={id} sx={{ width: '75%', position: 'relative', mx: 'auto'}}>
+    <Box key={id} sx={{ width: '75%', position: 'relative', mx: 'auto' }}>
       <Link
-  to={`/series/${id}`}
-  style={{ textDecoration: 'none', color: 'inherit' }}
->
-
+        to={`/series/${id}`}
+        style={{ textDecoration: 'none', color: 'inherit' }}
+      >
         <ImageListItem>
           <img
             src={`https://image.tmdb.org/t/p/w185${posterPath}`}
@@ -125,7 +124,10 @@ export default function SeriesCard(props: SeriesCardProps) {
             }
           />
         </ImageListItem>
-        <Typography variant='button' sx={{ fontSize: '12px', mt: '5px', textDecoration: 'none' }}>
+        <Typography
+          variant='button'
+          sx={{ fontSize: '12px', mt: '5px', textDecoration: 'none' }}
+        >
           {name}
         </Typography>
         <Stack
