@@ -42,20 +42,22 @@ import {
 const Profile: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
-  const [newDisplayName, setNewDisplayName] = useState('');
+  const [newDisplayName, setNewDisplayName] = useState("");
   const [isEditing, setIsEditing] = useState(false);
 
   const [isNotified, setIsNotified] = useState(false);
   const [notificationPreference, setNotificationPreference] = useState(() => {
     const storedPreference = localStorage.getItem("notificationPreference");
-    return storedPreference || '';
+    return storedPreference || "";
   });
   const seriesId = 1234;
-  const nextAirEpisodes = [];
+  const nextAirEpisodes: { seriesName: any; nextEpisode: any }[] = [];
   const apiKey = "2955ed558f1e71d9871ec2a96694678a";
   const preferenceKey = `notificationPreference_${auth.currentUser?.uid}`;
 
   useEffect(() => {
+    getListIdSubs();
+
     axios
       .get(
         `https://api.themoviedb.org/3/tv/${seriesId}?api_key=${apiKey}&append_to_response=seasons`
@@ -68,7 +70,6 @@ const Profile: React.FC = () => {
           seriesName,
           nextEpisode,
         });
-        getListIdSubs();
       })
       .catch((error) => {
         console.error(error);
@@ -77,7 +78,10 @@ const Profile: React.FC = () => {
     const fetchUserData = async () => {
       if (auth.currentUser) {
         const userRef = collection(firestore, "users");
-        const userQuery = query(userRef, where("id", "==", auth.currentUser.uid));
+        const userQuery = query(
+          userRef,
+          where("id", "==", auth.currentUser.uid)
+        );
         const querySnapshot = await getDocs(userQuery);
 
         if (!querySnapshot.empty) {
@@ -104,10 +108,9 @@ const Profile: React.FC = () => {
     });
 
     const storedPreference = localStorage.getItem(preferenceKey);
-    setNotificationPreference(storedPreference || '');
-    
-    return () => unsubscribe();
+    setNotificationPreference(storedPreference || "");
 
+    return () => unsubscribe();
   }, [navigate, auth, preferenceKey]);
 
   const handleDisplayNameUpdate = async () => {
@@ -129,7 +132,6 @@ const Profile: React.FC = () => {
 
   const getListIdSubs = async () => {
     const userRef = collection(firestore, "users");
-
     if (auth.currentUser) {
       const userQuery = query(userRef, where("id", "==", auth.currentUser.uid));
       const querySnapshot = await getDocs(userQuery);
@@ -140,7 +142,25 @@ const Profile: React.FC = () => {
         const userDoc = await getDoc(userDocRef);
         if (userDoc.exists()) {
           const subscriptions = userDoc.data().subscriptions;
-          console.log("Subscriptions:", subscriptions);
+          subscriptions.forEach((seriesId: any) => {
+            axios
+              .get(
+                `https://api.themoviedb.org/3/tv/${seriesId}?api_key=${apiKey}&append_to_response=seasons`
+              )
+              .then((response) => {
+                const nextEpisode = response.data.next_episode_to_air;
+                const seriesName = response.data.name;
+
+                nextAirEpisodes.push({
+                  seriesName,
+                  nextEpisode,
+                });
+                console.log(nextAirEpisodes);
+              })
+              .catch((error) => {
+                console.error(error);
+              });
+          });
         } else {
           console.log("User document does not exist.");
         }
@@ -149,13 +169,11 @@ const Profile: React.FC = () => {
   };
 
   const handleEmailUpdate = async () => {
-
     const newEmail = prompt("Nouvel email :");
 
     if (newEmail) {
       if (auth.currentUser) {
         try {
-
           const password = prompt("Mot de passe actuel :");
 
           if (password !== null) {
@@ -186,7 +204,7 @@ const Profile: React.FC = () => {
             });
 
             await sendEmailVerification(auth.currentUser);
-console.log("Nem e-mail de vérification envoyé.");
+            console.log("Nem e-mail de vérification envoyé.");
 
             await new Promise((resolve) => {
               const interval = setInterval(async () => {
@@ -226,7 +244,6 @@ console.log("Nem e-mail de vérification envoyé.");
     }
   };
 
-
   const handleNotificationToggle = async () => {
     setIsNotified(!isNotified);
 
@@ -240,7 +257,7 @@ console.log("Nem e-mail de vérification envoyé.");
         const userDocRef = doc(firestore, "users", docSnapshot.id);
 
         await updateDoc(userDocRef, {
-          is_notified: !isNotified, 
+          is_notified: !isNotified,
         });
       }
     }
@@ -251,24 +268,24 @@ console.log("Nem e-mail de vérification envoyé.");
       const userRef = collection(firestore, "users");
       const userQuery = query(userRef, where("id", "==", auth.currentUser.uid));
       const querySnapshot = await getDocs(userQuery);
-  
+
       if (!querySnapshot.empty) {
         const docSnapshot = querySnapshot.docs[0];
         const userDocRef = doc(firestore, "users", docSnapshot.id);
-  
+
         await updateDoc(userDocRef, {
-          time_notif: preference, 
+          time_notif: preference,
         });
         localStorage.setItem(preferenceKey, preference);
       }
     }
-  };  
+  };
 
   if (!user) {
     return null;
   }
 
-  const currentDisplayName = user.displayName || '';
+  const currentDisplayName = user.displayName || "";
 
   const styles = {
     paperContainer: {
@@ -277,8 +294,6 @@ console.log("Nem e-mail de vérification envoyé.");
       height: "100%",
     },
   };
-
-
 
   return (
     <Paper style={styles.paperContainer}>
@@ -298,7 +313,7 @@ console.log("Nem e-mail de vérification envoyé.");
             sx={{
               borderRadius: "5px",
               mb: "10px",
-              p: 10, 
+              p: 10,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
@@ -306,7 +321,7 @@ console.log("Nem e-mail de vérification envoyé.");
             }}
           >
             <Typography variant="h6" sx={{ mb: 2 }}>
-            <strong>Username :</strong>
+              <strong>Username :</strong>
               {isEditing ? (
                 <Stack sx={{ alignItems: "center" }}>
                   <InputBase
@@ -335,14 +350,18 @@ console.log("Nem e-mail de vérification envoyé.");
                   variant="contained"
                   color="primary"
                   onClick={() => setIsEditing(true)}
-                  sx={{ mb: "10px", bgcolor: "#499b4a", '&:hover': { bgcolor: '#397A3E' } }}
+                  sx={{
+                    mb: "10px",
+                    bgcolor: "#499b4a",
+                    "&:hover": { bgcolor: "#397A3E" },
+                  }}
                 >
                   Modify Username
                 </Button>
               )}
             </Typography>
             <Typography variant="h6">
-            <strong>Email :</strong> <br />
+              <strong>Email :</strong> <br />
               <Typography variant="subtitle1">
                 {user.email || "Undefined"}
               </Typography>
@@ -352,7 +371,11 @@ console.log("Nem e-mail de vérification envoyé.");
               variant="contained"
               color="primary"
               onClick={handleEmailUpdate}
-              sx={{ mb: 2, bgcolor: "#499b4a", '&:hover': { bgcolor: '#397A3E' } }}
+              sx={{
+                mb: 2,
+                bgcolor: "#499b4a",
+                "&:hover": { bgcolor: "#397A3E" },
+              }}
             >
               Modify Email
             </Button>
@@ -362,23 +385,27 @@ console.log("Nem e-mail de vérification envoyé.");
                 checked={isNotified}
                 onChange={handleNotificationToggle}
                 sx={{
-                  appearance: "none", 
+                  appearance: "none",
                   width: "20px",
                   height: "20px",
                   borderRadius: "4px",
                   outline: "none",
                   "&.Mui-checked": {
-                    color: "#499b4a", 
+                    color: "#499b4a",
                   },
                   ":checked": {
-                    backgroundColor: "#499b4a", 
+                    backgroundColor: "#499b4a",
                   },
                 }}
               />
             </Typography>
             {isNotified && (
               <FormControl sx={{ mb: 2 }}>
-                <InputLabel sx={{ visibility: notificationPreference ? 'hidden' : 'visible' }}>
+                <InputLabel
+                  sx={{
+                    visibility: notificationPreference ? "hidden" : "visible",
+                  }}
+                >
                   Notification Preference
                 </InputLabel>
                 <Select
@@ -386,9 +413,9 @@ console.log("Nem e-mail de vérification envoyé.");
                   onChange={(e) => {
                     const preference = e.target.value;
                     setNotificationPreference(preference);
-                    updateNotificationPreference(preference); 
+                    updateNotificationPreference(preference);
                   }}
-                  sx={{ width: '200px' }}
+                  sx={{ width: "200px" }}
                 >
                   <MenuItem value="A Day">A day</MenuItem>
                   <MenuItem value="One Week">One week</MenuItem>
@@ -400,7 +427,11 @@ console.log("Nem e-mail de vérification envoyé.");
               variant="contained"
               color="primary"
               onClick={handlePasswordUpdate}
-              sx={{ mb: "10px", bgcolor: "#499b4a", '&:hover': { bgcolor: '#397A3E' } }}
+              sx={{
+                mb: "10px",
+                bgcolor: "#499b4a",
+                "&:hover": { bgcolor: "#397A3E" },
+              }}
             >
               Modify Password
             </Button>
