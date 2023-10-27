@@ -1,19 +1,12 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import {
   Container,
   Typography,
   Paper,
-  List,
-  ListItem,
-  ListItemText,
-  ListSubheader,
   Stack,
-  IconButton
 } from '@mui/material'
-import AddIcon from '@mui/icons-material/Add'
-import CheckIcon from '@mui/icons-material/Check'
 import {
   collection,
   query,
@@ -22,39 +15,34 @@ import {
   doc,
   updateDoc,
   arrayUnion,
-  onSnapshot
+  onSnapshot,
+  addDoc,
 } from 'firebase/firestore'
+import { User, onAuthStateChanged } from "firebase/auth";
 import { firestore, auth } from '../../database/firebase.config'
+import BackgroundImage from '../../components/Details/BackgroundImage'
+import SerieInfo from '../../components/Details/SerieInfo'
+import SubscriptionButton from '../../components/Details/SubscriptionButton'
+import SeasonList from '../../components/Details/SeasonList'
+import CastList from '../../components/Details/CastList'
+import ReviewList from '../../components/Details/ReviewList'
 
-interface SeriesDetails {
-  name: string
-  overview: string
-  poster_path: string
-  number_of_seasons: number
-  number_of_episodes: number
-  genres: { name: string }[]
-  first_air_date: string
-  backdrop_path: string
-}
-
-interface Season {
-  season_number: number
-  episode_count: number
-  name: string
-  overview: string
-}
-
-interface CastMember {
-  name: string
-  character: string
-}
+import { SeriesDetails } from '../../components/Details/SerieInfo';
+import { Season } from '../../components/Details/SeasonList';
+import { Review } from '../../components/Details/ReviewList';
+import { CastMember } from '../../components/Details/CastList'; 
 
 const SerieDetails = () => {
+  const navigate = useNavigate();
   const { seriesId } = useParams()
   const [seriesDetails, setSeriesDetails] = useState<SeriesDetails | null>(null)
   const [seasons, setSeasons] = useState<Season[]>([])
   const [cast, setCast] = useState<CastMember[]>([])
   const [isSubscribed, setIsSubscribed] = useState(false)
+  const [rating, setRating] = useState<number>(0);
+  const [comment, setComment] = useState('');
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [user, setUser] = useState<User | null>(null);
 
   const apiKey = '2955ed558f1e71d9871ec2a96694678a'
 
@@ -74,6 +62,40 @@ const SerieDetails = () => {
       }
     }
   }
+
+  const handleUnsubscription = async (subscription: string) => {
+    if (auth.currentUser && seriesDetails) {
+      const userRef = collection(firestore, 'users');
+      const userQuery = query(
+        userRef,
+        where('id', '==', auth.currentUser.uid)
+      );
+      const querySnapshot = await getDocs(userQuery);
+  
+      if (!querySnapshot.empty) {
+        const docSnapshot = querySnapshot.docs[0];
+        const userDocRef = doc(firestore, 'users', docSnapshot.id);
+  
+        const userData = docSnapshot.data();
+        if (userData.subscriptions.includes(subscription)) {
+          await updateDoc(userDocRef, {
+            subscriptions: userData.subscriptions.filter((item: string) => item !== subscription)
+          });
+        }
+      }
+    }
+  };
+  
+
+  const toggleSubscription = () => {
+    if (seriesDetails) {
+      if (isSubscribed) {
+        handleUnsubscription(seriesDetails.name);
+      } else {
+        handleSubscription(seriesDetails.name);
+      }
+    }
+  };
 
   useEffect(() => {
     axios
@@ -107,6 +129,16 @@ const SerieDetails = () => {
         console.error(error)
       })
   }, [seriesId])
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser: User | null) => {
+      if (currentUser) {
+        setUser(currentUser);
+      } 
+    });
+
+    return () => unsubscribe();
+  }, [navigate, auth]);
 
   useEffect(() => {
     async function checkSubscription() {
@@ -148,8 +180,62 @@ const SerieDetails = () => {
     return () => unsubscribe()
   }, [seriesDetails, auth.currentUser])
 
+  const submitReview = async () => {
+    if (auth.currentUser) {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const reviewData = {
+        userId: auth.currentUser.uid,
+        userName: auth.currentUser.displayName,
+        seriesId: seriesId,
+        rating: rating,
+        comment: comment,
+        timestamp: Date.now(),
+      };
+
+      const docRef = await addDoc(collection(firestore, 'reviews'), reviewData);
+
+      setRating(0);
+      setComment('');
+
+      const newReviewId = docRef.id;
+      const newReview = { ...reviewData, id: newReviewId };
+
+      setReviews((prevReviews) => [...prevReviews, newReview]);
+
+      console.log('Avis ajouté avec ID : ', docRef.id);
+    }else {
+      navigate("/login");
+    }
+  };
+
+  useEffect(() => {
+    async function fetchReviews() {
+      const reviewsRef = collection(firestore, 'reviews');
+      const reviewsQuery = query(reviewsRef, where('seriesId', '==', seriesId));
+      const querySnapshot = await getDocs(reviewsQuery);
+    
+      const reviewsData: Review[] = [];
+      querySnapshot.forEach((doc) => {
+        const review = doc.data() as Review;
+        reviewsData.push(review);
+      });
+    
+      setReviews(reviewsData);
+    }
+    
+  
+    fetchReviews();
+  }, [seriesId]);
+  
+
   if (!seriesDetails) {
     return <div>Loading...</div>
+  }
+
+  if (user) {
+    const currentDisplayName = user.displayName || '';
   }
 
   const styles = {
@@ -191,124 +277,47 @@ const SerieDetails = () => {
   }
 
   return (
-    <Container>
-      <Paper sx={styles.paperContainer}>
-        <Stack sx={styles.darkOverlay}>
-          <Typography variant='h5'>{seriesDetails.name}</Typography>
-          <Typography variant='subtitle1' sx={{ mb: 1 }}>
-            {seriesDetails.overview}
-          </Typography>
-          <Stack direction='row'>
-            <Typography
-              sx={{
-                borderRadius: '5px',
-                backgroundColor: '#e0e0e0',
-                color: '#000000',
-                fontSize: '12px',
-                textAlign: 'center',
-                p: '5px',
-                mx: '5px',
-                cursor: 'pointer'
-              }}
-            >{`${seriesDetails.number_of_seasons} seasons`}</Typography>
-            <Typography
-              sx={{
-                borderRadius: '5px',
-                backgroundColor: '#e0e0e0',
-                color: '#000000',
-                fontSize: '12px',
-                textAlign: 'center',
-                p: '5px',
-                mx: '5px',
-                cursor: 'pointer'
-              }}
-            >{`${seriesDetails.number_of_episodes} episodes`}</Typography>
-            {seriesDetails.genres.map(genre => (
-              <Typography
-              sx={{
-                borderRadius: '5px',
-                backgroundColor: '#e0e0e0',
-                color: '#000000',
-                fontSize: '12px',
-                textAlign: 'center',
-                p: '5px',
-                mx: '5px',
-                cursor: 'pointer'
-              }}
-            >{`${genre.name}`}</Typography>
-            ))}
-            <Typography
-              sx={{
-                borderRadius: '5px',
-                backgroundColor: '#e0e0e0',
-                color: '#000000',
-                fontSize: '12px',
-                textAlign: 'center',
-                p: '5px',
-                mx: '5px',
-                cursor: 'pointer'
-              }}
-            >{`${seriesDetails.first_air_date}`}</Typography>
-          </Stack>
+      <Container>
+        <BackgroundImage imageUrl={`https://image.tmdb.org/t/p/w500${seriesDetails.backdrop_path}`}>
+          <SubscriptionButton isSubscribed={isSubscribed} onClick={toggleSubscription} />
+        </BackgroundImage>
+        <Paper sx={{ mb: '30px' }}>
+          <SerieInfo seriesDetails={seriesDetails} />
+        </Paper>
+        <Typography variant='h5' sx={{ mt: 2, mb: 2 }}>
+          Seasons
+        </Typography>
+        <SeasonList seasons={seasons} />
+        <Typography variant='h5' sx={{ mt: 4 }}>
+          Cast
+        </Typography>
+        <CastList cast={cast} />
+
+        <Stack>
+          <h3>Leave a Review</h3>
+          <select value={rating} onChange={(e) => setRating(parseInt(e.target.value))}>
+            <option value="0">Select a Rating</option>
+            <option value="1">1 - Bad</option>
+            <option value="2">2 - Average</option>
+            <option value="3">3 - Good</option>
+            <option value="4">4 - Very good</option>
+            <option value="5">5 - Excellent</option>
+          </select>
+          <textarea
+            placeholder="Add a Comment..."
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+          />
+          <button onClick={submitReview}>Submit</button>
         </Stack>
-        <IconButton
-          sx={styles.button}
-          onClick={e => {
-            e.preventDefault()
-            handleSubscription(seriesDetails.name)
-          }}
-        >
-          {isSubscribed ? <CheckIcon /> : <AddIcon />}{' '}
-        </IconButton>
-      </Paper>
 
-      {seasons.map(season => (
-        <div key={season.season_number}>
-          <Paper sx={{ marginTop: 2 }}>
-            <ListSubheader>Season {season.season_number}</ListSubheader>
-            <Typography variant='subtitle1'>{season.overview}</Typography>
-            <div
-              style={{
-                display: 'flex',
-                overflowX: 'auto'
-              }}
-            >
-              {Array.from({ length: season.episode_count }, (_, index) => (
-                <ListItem
-                  key={index}
-                  sx={{
-                    flex: '0 0 auto',
-                    width: 'auto',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '5px',
-                    margin: '5px',
-                    cursor: 'pointer',
-                    '&:hover': {
-                      backgroundColor: '#e0e0e0'
-                    }
-                  }}
-                >
-                  <ListItemText primary={`Episode ${index + 1}`} />
-                </ListItem>
-              ))}
-            </div>
-          </Paper>
-        </div>
-      ))}
-      <Typography variant='h5' sx={{ marginTop: 2 }}>
-        Cast
-      </Typography>
-      <List>
-        {cast.map(member => (
-          <ListItem key={member.name}>
-            <ListItemText primary={member.name} secondary={member.character} />
-          </ListItem>
-        ))}
-      </List>
-    </Container>
-  )
-}
+        <Typography variant='h5' sx={{ marginTop: 2 }}>
+          Reviews and Comments
+        </Typography>
+        <ReviewList reviews={reviews} />
+      </Container>
+    
+  );
+};
 
-export default SerieDetails
+export default SerieDetails;

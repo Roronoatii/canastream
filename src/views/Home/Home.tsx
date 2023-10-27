@@ -153,7 +153,7 @@ const Home = () => {
         }}
       >
         {paginatedTVShows.map((show: TVShow) => (
-          <Link to={`/series/${show.id}`} key={show.id}>
+          <Link to={`/series/${show.id}`} key={show.id} style={{ textDecoration: 'none', color: '#499b4a', fontWeight: 'bold'}}>
             <SeriesCard
               key={show.id}
               id={show.id}
@@ -172,8 +172,8 @@ const Home = () => {
         direction="row"
         sx={{ justifyContent: "center", alignItems: "center", mt: "10px" }}
       >
-        <IconButton disabled={currentPage === 1}>
-          <ArrowBackIcon onClick={prevPage} />
+        <IconButton disabled={currentPage === 1} onClick={prevPage}>
+          <ArrowBackIcon />
         </IconButton>
         <Pagination
           currentPage={currentPage}
@@ -186,8 +186,9 @@ const Home = () => {
           disabled={
             startIndex + rowsPerPage * showsPerRow >= filteredTVShows.length
           }
+          onClick={nextPage}
         >
-          <ArrowForwardIcon onClick={nextPage} />
+          <ArrowForwardIcon />
         </IconButton>
       </Stack>
     </Stack>

@@ -1,5 +1,6 @@
-import React, { useContext } from 'react'
-import { SwitchModeButton } from '../../molecules/atoms/ThemeSwitchButton'
+import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { SwitchModeButton } from '../../molecules/atoms/ThemeSwitchButton';
 import {
   AppBar,
   IconButton,
@@ -7,20 +8,49 @@ import {
   Toolbar,
   Typography,
   useTheme
-} from '@mui/material'
-import MenuIcon from '@mui/icons-material/Menu'
-import { useMobileThreshold } from '../../../hooks/useMobileThreshold'
-import { NavigationContext } from '../../../views/Layout/NavigationContext'
-import FrontEditorDrawer from '../FrontEditor/FrontEditorDrawer'
-import SmokingRoomsIcon from '@mui/icons-material/SmokingRooms'
+} from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import { useMobileThreshold } from '../../../hooks/useMobileThreshold';
+import { NavigationContext } from '../../../views/Layout/NavigationContext';
+import FrontEditorDrawer from '../FrontEditor/FrontEditorDrawer';
+import SmokingRoomsIcon from '@mui/icons-material/SmokingRooms';
 import SpaIcon from '@mui/icons-material/Spa';
+import { User, onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../../../database/firebase.config';
 
 const TopBar = () => {
-  const theme = useTheme()
-  const { drawerSubState, handleMobileDrawerToggle } =
-    useContext(NavigationContext)
+  const theme = useTheme();
+  const { drawerSubState, handleMobileDrawerToggle } = useContext(NavigationContext);
+  const navigate = useNavigate();
 
-  const isMobile = useMobileThreshold()
+  const isMobile = useMobileThreshold();
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser: User | null) => {
+      if (currentUser) {
+        setUser(currentUser);
+        setIsLoggedIn(true);
+      } else {
+        setIsLoggedIn(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [navigate, auth]);
+
+  const navigateToHome = () => {
+    navigate('/');
+  };
+
+  const handleLoginOrProfileClick = () => {
+    if (user) {
+      navigate('/profile');
+    } else {
+      navigate('/login');
+    }
+  };
 
   return (
     <AppBar
@@ -62,18 +92,29 @@ const TopBar = () => {
               <MenuIcon />
             </IconButton>
           )}
-            <Typography variant='h6' sx={{alignItems: 'center'}}>
+          <Typography variant='h6' sx={{ 
+            display: 'flex',
+            alignItems: 'center',
+            cursor: 'pointer'
+          }}>
+            <button
+              onClick={navigateToHome}
+              style={{ color: 'white', fontSize: '24px', background: 'none', border: 'none', cursor: 'pointer' }}
+            >
               CanaStream
-              <SpaIcon sx={{ ml: 1 }} />
-              <SmokingRoomsIcon sx={{ ml: 1 }} />
-            </Typography>
-          <Typography variant='h6'></Typography>
+            </button>
+            <SpaIcon sx={{ ml: 1 }} />
+            <SmokingRoomsIcon sx={{ ml: 1 }} />
+          </Typography>
+          <Typography variant='h6' sx={{ cursor: 'pointer' }} onClick={handleLoginOrProfileClick}>
+            {isLoggedIn ? 'Profile' : 'Login'}
+          </Typography>
         </Stack>
         <SwitchModeButton />
         <FrontEditorDrawer />
       </Toolbar>
     </AppBar>
-  )
+  );
 }
 
-export { TopBar }
+export { TopBar };

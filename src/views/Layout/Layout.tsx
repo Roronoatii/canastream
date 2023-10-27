@@ -8,7 +8,7 @@ import {
 import Home from "../Home/Home";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import LoginPage from "../Connection/Login";
-import SignInPage from "../Connection/SignIn";
+import SignUpPage from "../Connection/SignUp";
 import FirebaseUser from "../../models/FirebaseUser";
 import { auth } from "../../database/firebase.config";
 import Profile from "../Profile/Profile";
@@ -69,25 +69,25 @@ const Layout = () => {
           handleDrawerSubStateToggle,
         }}
       >
-        <NavigationBar />
-        <Stack sx={{ height: "100%", width: "100%" }}>
-          <TopBar />
-          <Box
-            component="main"
-            sx={{ minHeight: "0px", width: "100%", flex: 1, p: 1 }}
-            overflow="auto"
-          >
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/series/:seriesId" element={<SerieDetails />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/signin" element={<SignInPage />} />
-                <Route path="/profile" element={<Profile />} />
-              </Routes>
-            </BrowserRouter>
-          </Box>
-        </Stack>
+        <BrowserRouter basename="/">
+          <NavigationBar />
+          <Stack sx={{ height: "100%", width: "100%" }}>
+            <TopBar />
+            <Box
+              component="main"
+              sx={{ minHeight: "0px", width: "100%", flex: 1, p: 1 }}
+              overflow="auto"
+            >
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/series/:seriesId" element={<SerieDetails />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/signup" element={<SignUpPage />} />
+                  <Route path="/profile" element={<Profile />} />
+                </Routes>
+            </Box>
+          </Stack>
+        </BrowserRouter>
       </NavigationContext.Provider>
     </Stack>
   );
