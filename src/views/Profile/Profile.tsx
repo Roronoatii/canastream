@@ -10,6 +10,10 @@ import {
   Grid,
   Input,
   Checkbox,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
 } from "@mui/material";
 import {
   EmailAuthProvider,
@@ -41,9 +45,14 @@ const Profile: React.FC = () => {
   const [newDisplayName, setNewDisplayName] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [isNotified, setIsNotified] = useState(false);
+  const [notificationPreference, setNotificationPreference] = useState(() => {
+    const storedPreference = localStorage.getItem("notificationPreference");
+    return storedPreference || '';
+  });
   const seriesId = 1234;
   const nextAirEpisodes = [];
   const apiKey = "2955ed558f1e71d9871ec2a96694678a";
+  const preferenceKey = `notificationPreference_${auth.currentUser?.uid}`;
 
   useEffect(() => {
     axios
@@ -92,9 +101,12 @@ const Profile: React.FC = () => {
         navigate("/login");
       }
     });
+
+    const storedPreference = localStorage.getItem(preferenceKey);
+    setNotificationPreference(storedPreference || '');
     
     return () => unsubscribe();
-  }, [navigate, auth]);
+  }, [navigate, auth, preferenceKey]);
 
   const handleDisplayNameUpdate = async () => {
     if (auth.currentUser) {
@@ -234,8 +246,25 @@ const Profile: React.FC = () => {
     }
   };
 
+  const updateNotificationPreference = async (preference: string) => {
+    if (auth.currentUser) {
+      const userRef = collection(firestore, "users");
+      const userQuery = query(userRef, where("id", "==", auth.currentUser.uid));
+      const querySnapshot = await getDocs(userQuery);
+  
+      if (!querySnapshot.empty) {
+        const docSnapshot = querySnapshot.docs[0];
+        const userDocRef = doc(firestore, "users", docSnapshot.id);
+  
+        await updateDoc(userDocRef, {
+          time_notif: preference, 
+        });
+        localStorage.setItem(preferenceKey, preference);
+      }
+    }
+  };  
+
   if (!user) {
-    navigate("/login");
     return null;
   }
 
@@ -343,6 +372,26 @@ const Profile: React.FC = () => {
                 }}
               />
             </Typography>
+            {isNotified && (
+              <FormControl sx={{ mb: 2 }}>
+                <InputLabel sx={{ visibility: notificationPreference ? 'hidden' : 'visible' }}>
+                  Notification Preference
+                </InputLabel>
+                <Select
+                  value={notificationPreference}
+                  onChange={(e) => {
+                    const preference = e.target.value;
+                    setNotificationPreference(preference);
+                    updateNotificationPreference(preference); 
+                  }}
+                  sx={{ width: '200px' }}
+                >
+                  <MenuItem value="A Day">A day</MenuItem>
+                  <MenuItem value="One Week">One week</MenuItem>
+                  <MenuItem value="Two Weeks">Two weeks</MenuItem>
+                </Select>
+              </FormControl>
+            )}
             <Button
               variant="contained"
               color="primary"
