@@ -270,7 +270,7 @@ const SerieDetails = () => {
   }
 
   return (
-    <Container>
+    <Container sx={{mb: 2}}>
       <Paper sx={styles.paperContainer}>
         <Box sx={styles.darkOverlay}>
           <Stack sx={styles.buttonContainer}>
@@ -337,7 +337,7 @@ const SerieDetails = () => {
         </Stack>
       </Stack>
 
-      <Typography variant='h5' sx={{ marginTop: 2 }}>
+      <Typography variant='h5' sx={{ mt: 2 }}>
         Reviews and Comments
       </Typography>
       <ReviewList reviews={reviews} />
