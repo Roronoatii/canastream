@@ -5,15 +5,8 @@ import {
   Container,
   Typography,
   Paper,
-  List,
-  ListItem,
-  ListItemText,
-  ListSubheader,
   Stack,
-  IconButton
 } from '@mui/material'
-import AddIcon from '@mui/icons-material/Add'
-import CheckIcon from '@mui/icons-material/Check'
 import {
   collection,
   query,
@@ -24,44 +17,20 @@ import {
   arrayUnion,
   onSnapshot,
   addDoc,
-  getDoc
 } from 'firebase/firestore'
 import { User, onAuthStateChanged } from "firebase/auth";
 import { firestore, auth } from '../../database/firebase.config'
+import BackgroundImage from '../../components/Details/BackgroundImage'
+import SerieInfo from '../../components/Details/SerieInfo'
+import SubscriptionButton from '../../components/Details/SubscriptionButton'
+import SeasonList from '../../components/Details/SeasonList'
+import CastList from '../../components/Details/CastList'
+import ReviewList from '../../components/Details/ReviewList'
 
-interface SeriesDetails {
-  name: string
-  overview: string
-  poster_path: string
-  number_of_seasons: number
-  number_of_episodes: number
-  genres: { name: string }[]
-  first_air_date: string
-  backdrop_path: string
-}
-
-interface Season {
-  season_number: number
-  episode_count: number
-  name: string
-  overview: string
-}
-
-interface CastMember {
-  name: string
-  character: string
-}
-
-interface Review {
-    id: string;
-    userId: string; 
-    userName: string | null;
-    rating: number; 
-    comment: string; 
-    seriesId: string | undefined; 
-    timestamp: number;
-  }
-  
+import { SeriesDetails } from '../../components/Details/SerieInfo';
+import { Season } from '../../components/Details/SeasonList';
+import { Review } from '../../components/Details/ReviewList';
+import { CastMember } from '../../components/Details/CastList'; 
 
 const SerieDetails = () => {
   const navigate = useNavigate();
@@ -93,6 +62,40 @@ const SerieDetails = () => {
       }
     }
   }
+
+  const handleUnsubscription = async (subscription: string) => {
+    if (auth.currentUser && seriesDetails) {
+      const userRef = collection(firestore, 'users');
+      const userQuery = query(
+        userRef,
+        where('id', '==', auth.currentUser.uid)
+      );
+      const querySnapshot = await getDocs(userQuery);
+  
+      if (!querySnapshot.empty) {
+        const docSnapshot = querySnapshot.docs[0];
+        const userDocRef = doc(firestore, 'users', docSnapshot.id);
+  
+        const userData = docSnapshot.data();
+        if (userData.subscriptions.includes(subscription)) {
+          await updateDoc(userDocRef, {
+            subscriptions: userData.subscriptions.filter((item: string) => item !== subscription)
+          });
+        }
+      }
+    }
+  };
+  
+
+  const toggleSubscription = () => {
+    if (seriesDetails) {
+      if (isSubscribed) {
+        handleUnsubscription(seriesDetails.name);
+      } else {
+        handleSubscription(seriesDetails.name);
+      }
+    }
+  };
 
   useEffect(() => {
     axios
@@ -274,162 +277,47 @@ const SerieDetails = () => {
   }
 
   return (
-    <Container>
-      <Paper sx={styles.paperContainer}>
-        <Stack sx={styles.darkOverlay}>
-          <Typography variant='h5'>{seriesDetails.name}</Typography>
-          <Typography variant='subtitle1' sx={{ mb: 1 }}>
-            {seriesDetails.overview}
-          </Typography>
-          <Stack direction='row'>
-            <Typography
-              sx={{
-                borderRadius: '5px',
-                backgroundColor: '#e0e0e0',
-                color: '#000000',
-                fontSize: '12px',
-                textAlign: 'center',
-                p: '5px',
-                mx: '5px',
-                cursor: 'pointer'
-              }}
-            >{`${seriesDetails.number_of_seasons} seasons`}</Typography>
-            <Typography
-              sx={{
-                borderRadius: '5px',
-                backgroundColor: '#e0e0e0',
-                color: '#000000',
-                fontSize: '12px',
-                textAlign: 'center',
-                p: '5px',
-                mx: '5px',
-                cursor: 'pointer'
-              }}
-            >{`${seriesDetails.number_of_episodes} episodes`}</Typography>
-            {seriesDetails.genres.map(genre => (
-              <Typography
-              sx={{
-                borderRadius: '5px',
-                backgroundColor: '#e0e0e0',
-                color: '#000000',
-                fontSize: '12px',
-                textAlign: 'center',
-                p: '5px',
-                mx: '5px',
-                cursor: 'pointer'
-              }}
-            >{`${genre.name}`}</Typography>
-            ))}
-            <Typography
-              sx={{
-                borderRadius: '5px',
-                backgroundColor: '#e0e0e0',
-                color: '#000000',
-                fontSize: '12px',
-                textAlign: 'center',
-                p: '5px',
-                mx: '5px',
-                cursor: 'pointer'
-              }}
-            >{`${seriesDetails.first_air_date}`}</Typography>
-          </Stack>
+      <Container>
+        <BackgroundImage imageUrl={`https://image.tmdb.org/t/p/w500${seriesDetails.backdrop_path}`}>
+          <SubscriptionButton isSubscribed={isSubscribed} onClick={toggleSubscription} />
+        </BackgroundImage>
+        <Paper sx={{ mb: '30px' }}>
+          <SerieInfo seriesDetails={seriesDetails} />
+        </Paper>
+        <Typography variant='h5' sx={{ mt: 2, mb: 2 }}>
+          Seasons
+        </Typography>
+        <SeasonList seasons={seasons} />
+        <Typography variant='h5' sx={{ mt: 4 }}>
+          Cast
+        </Typography>
+        <CastList cast={cast} />
+
+        <Stack>
+          <h3>Leave a Review</h3>
+          <select value={rating} onChange={(e) => setRating(parseInt(e.target.value))}>
+            <option value="0">Select a Rating</option>
+            <option value="1">1 - Bad</option>
+            <option value="2">2 - Average</option>
+            <option value="3">3 - Good</option>
+            <option value="4">4 - Very good</option>
+            <option value="5">5 - Excellent</option>
+          </select>
+          <textarea
+            placeholder="Add a Comment..."
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+          />
+          <button onClick={submitReview}>Submit</button>
         </Stack>
-        <IconButton
-          sx={styles.button}
-          onClick={e => {
-            e.preventDefault()
-            handleSubscription(seriesDetails.name)
-          }}
-        >
-          {isSubscribed ? <CheckIcon /> : <AddIcon />}{' '}
-        </IconButton>
-      </Paper>
 
-      {seasons.map(season => (
-        <div key={season.season_number}>
-          <Paper sx={{ marginTop: 2 }}>
-            <ListSubheader>Season {season.season_number}</ListSubheader>
-            <Typography variant='subtitle1'>{season.overview}</Typography>
-            <div
-              style={{
-                display: 'flex',
-                overflowX: 'auto'
-              }}
-            >
-              {Array.from({ length: season.episode_count }, (_, index) => (
-                <ListItem
-                  key={index}
-                  sx={{
-                    flex: '0 0 auto',
-                    width: 'auto',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    border: '1px solid #e0e0e0',
-                    borderRadius: '5px',
-                    margin: '5px',
-                    cursor: 'pointer',
-                    '&:hover': {
-                      backgroundColor: '#e0e0e0'
-                    }
-                  }}
-                >
-                  <ListItemText primary={`Episode ${index + 1}`} />
-                </ListItem>
-              ))}
-            </div>
-          </Paper>
-        </div>
-      ))}
-      <Typography variant='h5' sx={{ marginTop: 2 }}>
-        Cast
-      </Typography>
-      <List>
-        {cast.map(member => (
-          <ListItem key={member.name}>
-            <ListItemText primary={member.name} secondary={member.character} />
-          </ListItem>
-        ))}
-      </List>
-      <Stack>
-        <h3>Leave a Review</h3>
-        <select value={rating} onChange={(e) => setRating(parseInt(e.target.value))}>
-          <option value="0">Select a Rating</option>
-          <option value="1">1 - Bad</option>
-          <option value="2">2 - Average</option>
-          <option value="3">3 - Good</option>
-          <option value="4">4 - Very good</option>
-          <option value="5">5 - Excellent</option>
-        </select>
-        <textarea
-          placeholder="Add a Comment..."
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-        />
-        <button onClick={submitReview}>Submit</button>
-      </Stack>
-      <Typography variant='h5' sx={{ marginTop: 2 }}>
-        Reviews and Comments
-      </Typography>
-      <List>
-        {reviews.map((review, index) => (
-          <ListItem key={index} sx={{ border: '1px solid #e0e0e0', borderRadius: '5px', margin: '5px' }}>
-            <Stack direction="column">
-              <Typography variant="subtitle1">
-                <strong>Rating :</strong> {review.rating}
-              </Typography>
-              <Typography variant="body2">
-                <strong>{review.userName}</strong>
-              </Typography>
-              <Typography variant="body2">{review.comment}</Typography>
-              <Typography variant="body2">
-                <strong>Date :</strong> {new Date(review.timestamp).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
-              </Typography>
-            </Stack>
-          </ListItem>
-        ))}
-      </List>
-    </Container>
-  )
-}
+        <Typography variant='h5' sx={{ marginTop: 2 }}>
+          Reviews and Comments
+        </Typography>
+        <ReviewList reviews={reviews} />
+      </Container>
+    
+  );
+};
 
-export default SerieDetails
+export default SerieDetails;

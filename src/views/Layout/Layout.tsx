@@ -8,7 +8,7 @@ import {
 import Home from "../Home/Home";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import LoginPage from "../Connection/Login";
-import SignInPage from "../Connection/SignIn";
+import SignUpPage from "../Connection/SignUp";
 import FirebaseUser from "../../models/FirebaseUser";
 import { auth } from "../../database/firebase.config";
 import Profile from "../Profile/Profile";
@@ -82,7 +82,7 @@ const Layout = () => {
                   <Route path="/" element={<Home />} />
                   <Route path="/series/:seriesId" element={<SerieDetails />} />
                   <Route path="/login" element={<LoginPage />} />
-                  <Route path="/signin" element={<SignInPage />} />
+                  <Route path="/signup" element={<SignUpPage />} />
                   <Route path="/profile" element={<Profile />} />
                 </Routes>
             </Box>
