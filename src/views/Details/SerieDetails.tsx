@@ -59,6 +59,7 @@ interface Review {
     rating: number; 
     comment: string; 
     seriesId: string | undefined; 
+    timestamp: number;
   }
   
 
@@ -178,13 +179,16 @@ const SerieDetails = () => {
 
   const submitReview = async () => {
     if (auth.currentUser) {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
       const reviewData = {
         userId: auth.currentUser.uid,
         userName: auth.currentUser.displayName,
         seriesId: seriesId,
         rating: rating,
         comment: comment,
-        timestamp: new Date(),
+        timestamp: Date.now(),
       };
 
       const docRef = await addDoc(collection(firestore, 'reviews'), reviewData);
@@ -387,36 +391,39 @@ const SerieDetails = () => {
         ))}
       </List>
       <Stack>
-        <h3>Laisser un avis</h3>
+        <h3>Leave a Review</h3>
         <select value={rating} onChange={(e) => setRating(parseInt(e.target.value))}>
-          <option value="0">Sélectionner une note</option>
-          <option value="1">1 - Mauvais</option>
-          <option value="2">2 - Moyen</option>
-          <option value="3">3 - Bien</option>
-          <option value="4">4 - Très bien</option>
+          <option value="0">Select a Rating</option>
+          <option value="1">1 - Bad</option>
+          <option value="2">2 - Average</option>
+          <option value="3">3 - Good</option>
+          <option value="4">4 - Very good</option>
           <option value="5">5 - Excellent</option>
         </select>
         <textarea
-          placeholder="Ajouter un commentaire..."
+          placeholder="Add a Comment..."
           value={comment}
           onChange={(e) => setComment(e.target.value)}
         />
-        <button onClick={submitReview}>Soumettre</button>
+        <button onClick={submitReview}>Submit</button>
       </Stack>
       <Typography variant='h5' sx={{ marginTop: 2 }}>
-        Avis et commentaires
+        Reviews and Comments
       </Typography>
       <List>
         {reviews.map((review, index) => (
           <ListItem key={index} sx={{ border: '1px solid #e0e0e0', borderRadius: '5px', margin: '5px' }}>
             <Stack direction="column">
               <Typography variant="subtitle1">
-                <strong>Note:</strong> {review.rating}
+                <strong>Rating :</strong> {review.rating}
               </Typography>
               <Typography variant="body2">
                 <strong>{review.userName}</strong>
               </Typography>
               <Typography variant="body2">{review.comment}</Typography>
+              <Typography variant="body2">
+                <strong>Date :</strong> {new Date(review.timestamp).toLocaleString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })}
+              </Typography>
             </Stack>
           </ListItem>
         ))}
