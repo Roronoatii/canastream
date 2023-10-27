@@ -1,9 +1,19 @@
-import { Accordion, AccordionDetails, AccordionSummary, ListItem, ListItemText, ListSubheader, Paper, Stack, Typography } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import React from 'react';
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  ListItem,
+  ListItemText,
+  ListSubheader,
+  Paper,
+  Stack,
+  Typography
+} from '@mui/material'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import React from 'react'
 
 interface SeasonListProps {
-  seasons: Season[];
+  seasons: Season[]
 }
 
 interface Season {
@@ -11,6 +21,7 @@ interface Season {
   episode_count: number
   name: string
   overview: string
+  poster_path: string
 }
 
 const SeasonList: React.FC<SeasonListProps> = ({ seasons }) => {
@@ -25,8 +36,19 @@ const SeasonList: React.FC<SeasonListProps> = ({ seasons }) => {
           </AccordionSummary>
           <AccordionDetails>
             <Paper sx={{ marginTop: 2 }}>
-              <ListSubheader>Season {season.season_number}</ListSubheader>
-              <Typography variant='subtitle1'>{season.overview}</Typography>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                {season.poster_path && (
+                  <img
+                    src={`https://image.tmdb.org/t/p/w500${season.poster_path}`}
+                    alt={`Poster of season ${season.season_number}`}
+                    style={{ width: '20%', marginRight: '20px' }}
+                  />
+                )}
+                <Stack>
+                  <ListSubheader>Season {season.season_number}</ListSubheader>
+                  <Typography variant='subtitle1'>{season.overview}</Typography>
+                </Stack>
+              </div>
               <div
                 style={{
                   display: 'flex',
@@ -59,8 +81,8 @@ const SeasonList: React.FC<SeasonListProps> = ({ seasons }) => {
         </Accordion>
       ))}
     </Stack>
-  );
+  )
 }
 
-export default SeasonList;
-export type { Season };
+export default SeasonList
+export type { Season }

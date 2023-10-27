@@ -105,6 +105,7 @@ const SerieDetails = () => {
       .get(`https://api.themoviedb.org/3/tv/${seriesId}?api_key=${apiKey}`)
       .then(response => {
         setSeriesDetails(response.data)
+        console.log(seriesDetails)
       })
       .catch(error => {
         console.error(error)
