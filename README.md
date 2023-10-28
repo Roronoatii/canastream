@@ -1,3 +1,20 @@
+# Groupe 4
+
+## Eloi TRANCHANT
+
+Scrum Master
+
+
+## Ethan NGHIEN
+
+FrontEnd
+
+
+## Paul RIVALLIN
+
+BackEnd
+
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
